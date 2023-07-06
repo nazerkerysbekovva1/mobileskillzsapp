@@ -20,9 +20,9 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
     };
 
     const handleLogin = () => {
-        // Handle login logic here
         console.log('Email:', email);
         console.log('Password:', password);
+        navigation.navigate('App')
       };
     
       const handleSignInApple = async () => {

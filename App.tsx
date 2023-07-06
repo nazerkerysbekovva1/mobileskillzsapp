@@ -143,7 +143,7 @@ import Route from './src/page/Route';
 import FlashMessage from 'react-native-flash-message';
 import Help from './src/page/Help';
 import Profile from './src/page/User/Profile';
-import { MainNavigation } from './src/navigation/AuthStack';
+import { MainNavigation } from './src/navigation/App';
 
 const Stack = createNativeStackNavigator();
 

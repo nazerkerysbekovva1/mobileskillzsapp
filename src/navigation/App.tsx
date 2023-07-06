@@ -19,14 +19,15 @@ import {
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Splash from '../../src/page/Splash';
-import Route from '../../src/page/Route';
+import Splash from '../page/Splash';
+import Route from '../page/Route';
 import FlashMessage from 'react-native-flash-message';
-import Help from '../../src/page/Help';
-import Profile from '../../src/page/User/Profile';
-import { WelcomePage } from '../../src/navigation/WelcomePage';
-import { Login } from '../../src/view/screens/auth/Login';
-import { Signup } from '../../src/view/screens/auth/Signup';
+import Help from '../page/Help';
+import Profile from '../page/User/Profile';
+import { WelcomePage } from './WelcomePage';
+import { Login } from '../view/screens/auth/Login';
+import { Signup } from '../view/screens/auth/Signup';
+import MainRoute from '../view/screens/MainRoute';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -42,6 +43,7 @@ export const MainNavigation = () => {
         <Stack.Screen name="WelcomePage" options={{ headerShown: false }} component={WelcomePage} />
         <Stack.Screen name="WelcomeStack" options={{ headerShown: false }} component={WelcomeStack} />
         <Stack.Screen name="AuthStack" options={{ headerShown: false }} component={AuthStack} />
+        <Stack.Screen name="App" options={{ headerShown: false }} component={App} />
       </Stack.Navigator>
   );
 }
@@ -59,6 +61,14 @@ export const AuthStack = () => {
     <Stack.Navigator>
       <Stack.Screen name="Login" options={{ headerShown: false }} component={Login} />
       <Stack.Screen name="Signup" options={{ headerShown: false }} component={Signup} />
+    </Stack.Navigator>
+  );
+};
+
+export const App = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="MainRoute" options={{ headerShown: false }} component={MainRoute} />
     </Stack.Navigator>
   );
 };
