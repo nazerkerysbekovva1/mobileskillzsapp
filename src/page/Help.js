@@ -33,7 +33,7 @@ export default class Help extends React.Component {
 
 	async goToRoute() {
 		await AsyncStorage.setItem('help', '1');
-		this.props.navigation.navigate('Route');
+		this.props.navigation.navigate('WelcomePage');
 	}
 
 	render() {

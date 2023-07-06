@@ -117,7 +117,6 @@
 
 // export default App;
 
-
 import React from 'react';
 import type { ReactElement, PropsWithChildren } from 'react';
 import {
@@ -144,10 +143,7 @@ import Route from './src/page/Route';
 import FlashMessage from 'react-native-flash-message';
 import Help from './src/page/Help';
 import Profile from './src/page/User/Profile';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import { MainNavigation } from './src/navigation/AuthStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -166,32 +162,11 @@ function App(): ReactElement {
       />
       <Stack.Navigator>
         <Stack.Screen name="Splash" options={{ headerShown: false }} component={Splash} />
-        <Stack.Screen name="Help" options={{ headerShown: false }} component={Help} />
-        <Stack.Screen name="Route" options={{ headerShown: false }} component={Route} />
+        <Stack.Screen name="MainNavigation" options={{ headerShown: false }} component={MainNavigation} />
       </Stack.Navigator>
       <FlashMessage position="top" />
     </NavigationContainer>
   );
 }
-
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
