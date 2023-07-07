@@ -22,7 +22,7 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
     const handleLogin = () => {
         console.log('Email:', email);
         console.log('Password:', password);
-        navigation.navigate('App')
+        navigation.navigate('App');
       };
     
       const handleSignInApple = async () => {
@@ -39,7 +39,7 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
 			<SafeAreaView className="flex-1 bg-black">
 				<View className=" m-8 flex-1 flex-col justify-between py-9">
                     <View className='flex items-center'>
-                        <Image source={require('../../../../assets/icon/icon-white.png')} className="w-64 h-15 mt-16 "/>
+                        <Image source={require('../../../../assets/icon/icon-white.png')} className="w-64 h-10 mt-16 "/>
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('WelcomePage')} className="absolute top-10 right-0">
                         <Image source={require('../../../../assets/icon/x.png')} className="w-6 h-6"/>
