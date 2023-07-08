@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, ScrollView, TouchableOpacity, ImageBackground, Text, Image } from 'react-native';
 import { Icon } from '../../../../component/Icon';
@@ -16,7 +16,11 @@ type Prop = {
 
 const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
     // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
-
+    
+    const [activeLike, setActiveLike] = useState(false);
+    const toggleLikeVisibility = () => {
+        setActiveLike(!activeLike);
+    };
     return(
         <TouchableOpacity className='w-64 h-32 mr-4'>
             <Image className='w-full h-full rounded-lg' source={src} />
@@ -24,8 +28,14 @@ const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
                     <Text className='bg-custom-Green px-1 rounded-xl text-black'>Web</Text>
                     <Text className='bg-custom-Green px-1 rounded-xl text-black'>iOS</Text>
                 </View>
-                <TouchableOpacity className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
-                    <Icon src={require('../../../../../assets/icon/like.png')} size={24}/>
+                <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
+                    <Icon 
+                        src={
+                            activeLike
+                            ? require('../../../../../assets/icon/like-active.png')
+                            : require('../../../../../assets/icon/like.png')
+                        } 
+                        size={24}/>
                 </TouchableOpacity>
                 <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{title}</Text>   
                <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price} KZT</Text>

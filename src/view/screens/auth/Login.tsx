@@ -37,7 +37,7 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
 
 		return (
 			<SafeAreaView className="flex-1 bg-black">
-				<View className=" m-8 flex-1 flex-col justify-between py-9">
+				<View className=" m-8    flex-1 flex-col justify-between py-9">
                     <View className='flex items-center'>
                         <Image source={require('../../../../assets/icon/icon-white.png')} className="w-64 h-10 mt-16 "/>
                     </View>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import { Digest } from '../Catalog/Digest';
@@ -7,10 +8,11 @@ import { Category } from '../Catalog/Category';
 import { Webinar } from '../Catalog/Webinar';
 import { Text } from 'react-native-elements';
 import { Icon } from '../../../../component/Icon';
+import { Catalog } from './Catalog';
 
 const Tab = createMaterialTopTabNavigator();
 
-const Index = () => {
+const MainCatalog = () => {
     return(
         <SafeAreaView className='flex-1 bg-black items-center p-8'>
           <View className='w-full flex-row justify-between'>
@@ -47,5 +49,18 @@ const styles = StyleSheet.create({
       borderBottomWidth: 0.4,
     },
   });
+
+
+  
+const Stack = createNativeStackNavigator();
+
+const Index = () => {
+  return(
+    <Stack.Navigator initialRouteName="MainCatalog">
+      <Stack.Screen name="MainCatalog" options={{ headerShown: false }} component={MainCatalog} />
+      <Stack.Screen name="catalog" options={{ headerShown: false }} component={Catalog} />
+    </Stack.Navigator>
+  )
+};
 
 export default Index;
