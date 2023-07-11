@@ -16,10 +16,10 @@ type Prop = {
     title: string;
     src?: any;
     price?: string;
-    type: string;
+    format: string;
 };
 
-const ComponentItem: React.FC<Prop> = ({nameCatalog, title, src, price, type}) => {
+const ComponentItem: React.FC<Prop> = ({nameCatalog, title, src, price, format}) => {
     
     const [activeLike, setActiveLike] = useState(false);
     const toggleLikeVisibility = () => {
@@ -29,7 +29,7 @@ const ComponentItem: React.FC<Prop> = ({nameCatalog, title, src, price, type}) =
         <TouchableOpacity className='w-full h-40 mb-4'>
             <Image className='w-full h-full rounded-lg' source={src} />
                     <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{nameCatalog}</Text>
-                    <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{type}</Text>
+                    <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{format}</Text>
                 <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                     <Icon 
                         src={
@@ -56,7 +56,7 @@ export const Catalog = ({ route }: { route: any }) => {
     const [modalVisible, setModalVisible] = useState(false);
     // const [selectedFilter, setSelectedFilter] = useState<null | number>(null);
 
-	const [selectedSales, setSelectedSales] = useState<string[]>([]);
+	  const [selectedSales, setSelectedSales] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
 
@@ -122,7 +122,7 @@ export const Catalog = ({ route }: { route: any }) => {
       </View>
       <ScrollView className='pt-2' showsVerticalScrollIndicator={false}>
         {data.list.map((item: Prop) => 
-            <ComponentItem nameCatalog={item.nameCatalog} title={item.title} src={item.src} price={item.price} type={item.type}/>
+            <ComponentItem nameCatalog={item.nameCatalog} title={item.title} src={item.src} price={item.price} format={item.format}/>
         )}
       </ScrollView>
 

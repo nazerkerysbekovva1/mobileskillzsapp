@@ -49,8 +49,8 @@ export const Category = () => {
   const courseCategoryList = [
     {
       title: 'Разработка',
-      course: 2,
-      webinar: 8, 
+      course: 0,
+      webinar: 0, 
       src: require("../../../../../assets/1.jpg"),
       list: [
         {
@@ -58,60 +58,67 @@ export const Category = () => {
           title: 'Введение в JavaScript ',
           src: require("../../../../../assets/1.jpg"),
           price: 'Free',
-          type: 'course',
+          format: 'course',
         },
         {
           nameCatalog: 'Мобильная разработка',
           title: 'Разработка под iOS',
           src: require("../../../../../assets/2.jpg"),
           price: '29 990 KZT',
-          type: 'course',
+          format: 'course',
         },
         {
           nameCatalog: 'Мобильная разработка',
           title: 'Разработка под Android ',
           src: require("../../../../../assets/2.jpg"),
           price: '29 990 KZT',
-          type: 'webinar',
+          format: 'webinar',
         },
         {
           nameCatalog: 'Веб разработка',
           title: 'Введение в JavaScript ',
           src: require("../../../../../assets/1.jpg"),
           price: '29 990 KZT',
-          type: 'course',
+          format: 'course',
         },
       ]
     },
     {
       title: 'Бизнес',
-      course: 1,
-      webinar: 11, 
+      course: 0,
+      webinar: 0, 
       src: require("../../../../../assets/2.jpg"),
       list: [],
     },
     {
       title: 'Маркетинг',
-      course: 5,
-      webinar: 3, 
+      course: 0,
+      webinar: 0, 
       src: require("../../../../../assets/3.jpg"),
       list: [],
     },
     {
       title: 'Здоровье и фитнес',
-      course: 6,
-      webinar: 2, 
+      course: 0,
+      webinar: 0, 
       src: require("../../../../../assets/1.jpg"),
       list: [],
     },
     {
       title: 'Лайфстайл',
-      course: 10,
+      course: 0,
       webinar: 0, 
       src: require("../../../../../assets/2.jpg"),
       list: [],
     },
   ]
+
+  // Calculate the sum of courses and webinars for each category
+  courseCategoryList.forEach(category => {
+    category.course = category.list.filter(item => item.format === 'course').length;
+    category.webinar = category.list.filter(item => item.format === 'webinar').length;
+  });
+  
 
   const handleNavigateToCatalog = (data: PropData, index: number) => {
 		navigation.navigate('catalog', {

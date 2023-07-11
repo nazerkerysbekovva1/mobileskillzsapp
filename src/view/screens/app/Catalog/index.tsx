@@ -9,6 +9,7 @@ import { Webinar } from '../Catalog/Webinar';
 import { Text } from 'react-native-elements';
 import { Icon } from '../../../../component/Icon';
 import { Catalog } from './Catalog';
+import { CourseCard } from '../CourseCard';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -59,6 +60,7 @@ const Index = () => {
     <Stack.Navigator initialRouteName="MainCatalog">
       <Stack.Screen name="MainCatalog" options={{ headerShown: false }} component={MainCatalog} />
       <Stack.Screen name="catalog" options={{ headerShown: false }} component={Catalog} />
+      <Stack.Screen name="CourseCard" options={{ headerShown: false }} component={CourseCard} />
     </Stack.Navigator>
   )
 };

@@ -1,20 +1,34 @@
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, ScrollView, TouchableOpacity, ImageBackground, Text, Image } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Icon } from '../../../../component/Icon';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-type Props = {
-    title: string;
-    onPress?: () => void;
-};
-
-type Prop = {
-    title: string;
+type PropData = {
+    nameCatalog?: string;
+    title?: string;
     src?: any;
     price?: string;
-};
+    format?: string;
+    list?: PropData[];
+  };
+  
+  type Prop = PropData & {
+    onPress?: () => void;
+  }
+  
+  type RootStackParamList = {
+      catalog: {
+          data: PropData;
+          dataList: PropData[];
+      };
+  };
+  
+  type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+  
 
-const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
+const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
     // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
     
     const [activeLike, setActiveLike] = useState(false);
@@ -37,13 +51,13 @@ const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
                         } 
                         size={24}/>
                 </TouchableOpacity>
-                <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{title}</Text>   
-               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price} KZT</Text>
+                <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{nameCatalog}</Text>   
+               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price}</Text>
         </TouchableOpacity>
     )
 }
 
-const Component: React.FC<Props> = ({ title, onPress }) => {
+const Component: React.FC<Prop> = ({ title, onPress, list }) => {
     return(
         <View className='mb-3'>
             <View className='flex-row justify-between items-center mb-3'>
@@ -53,22 +67,182 @@ const Component: React.FC<Props> = ({ title, onPress }) => {
                 </TouchableOpacity>
             </View>
             <ScrollView horizontal>
-                <ComponentItem title='Введение в JavaScript' price='29 990' src={require("../../../../../assets/1.jpg")} />
-                <ComponentItem title='Введение в JavaScript' price='29 990' src={require("../../../../../assets/2.jpg")}/>
-                <ComponentItem title='Введение в JavaScript' price='29 990' src={require("../../../../../assets/3.jpg")}/>
+             {list?.map((item, index) => (
+                <ComponentItem key={index} nameCatalog={item.nameCatalog} price={item.price} src={item.src} />
+             ))}
+            </ScrollView>
+        </View>
+    )
+}
+
+const UserItem: React.FC<Prop> = ({title, onPress, list}) => {
+    return(
+        <View className='mb-3'>
+            <View className='flex-row justify-between items-center mb-3'>
+                <Text className='text-xl font-bold text-white'>{title}</Text>
+                <TouchableOpacity onPress={onPress}>
+                    <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
+                </TouchableOpacity>
+            </View>
+            <ScrollView horizontal>
+             {list?.map((item, index) => (
+                <TouchableOpacity key={index} onPress={onPress} className='w-24 h-18 mr-4'>
+                    <Image className='w-full h-full rounded-lg' source={item.src} />
+                </TouchableOpacity>
+             ))}
             </ScrollView>
         </View>
     )
 }
 
 export const Digest = () => {
+    const navigation = useNavigation<PersonalityScreenNavigationProp>();
+
+    const handleNavigateToCatalog = (data: PropData, index: number) => {
+		navigation.navigate('catalog', {
+			data: data,
+			dataList: courseCategoryList,
+		});
+	};
+
+    const courseCategoryList = [
+        {
+          title: 'Бесплатные курсы',
+          list: [
+            {
+              nameCatalog: 'Веб разработка',
+              title: 'Введение в JavaScript ',
+              src: require("../../../../../assets/1.jpg"),
+              price: 'Free',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под iOS',
+              src: require("../../../../../assets/2.jpg"),
+              price: '29 990 KZT',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под Android ',
+              src: require("../../../../../assets/2.jpg"),
+              price: '29 990 KZT',
+              format: 'webinar',
+            },
+          ]
+        },
+        {
+          title: 'Бестселлеры',
+          list: [
+            {
+              nameCatalog: 'Веб разработка',
+              title: 'Введение в JavaScript ',
+              src: require("../../../../../assets/1.jpg"),
+              price: 'Free',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под iOS',
+              src: require("../../../../../assets/2.jpg"),
+              price: '29 990 KZT',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под Android ',
+              src: require("../../../../../assets/3.jpg"),
+              price: '29 990 KZT',
+              format: 'webinar',
+            },
+          ]
+        },
+        {
+          title: 'Рекомендации для вас',
+          list: [
+            {
+              nameCatalog: 'Веб разработка',
+              title: 'Введение в JavaScript ',
+              src: require("../../../../../assets/1.jpg"),
+              price: 'Free',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под iOS',
+              src: require("../../../../../assets/2.jpg"),
+              price: '29 990 KZT',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под Android ',
+              src: require("../../../../../assets/3.jpg"),
+              price: '29 990 KZT',
+              format: 'webinar',
+            },
+          ]
+        },
+        {
+          title: 'Курсы со скидкой',
+          list: [
+            {
+              nameCatalog: 'Веб разработка',
+              title: 'Введение в JavaScript ',
+              src: require("../../../../../assets/1.jpg"),
+              price: 'Free',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под iOS',
+              src: require("../../../../../assets/2.jpg"),
+              price: '29 990 KZT',
+              format: 'course',
+            },
+            {
+              nameCatalog: 'Мобильная разработка',
+              title: 'Разработка под Android ',
+              src: require("../../../../../assets/3.jpg"),
+              price: '29 990 KZT',
+              format: 'webinar',
+            },
+          ]
+        },
+      ]
+
+
+      const users = [
+        {
+          title: 'Интересное',
+          list: [
+            {
+              src: require("../../../../../assets/ava.png"),
+            },
+            {
+              src: require("../../../../../assets/ava.png"),
+            },
+            {
+              src: require("../../../../../assets/ava.png"),
+            },
+            {
+              src: require("../../../../../assets/ava.png"),
+            },
+          ]
+        },
+      ]
   return(
     <SafeAreaView className="flex-1 bg-black p-4">
         <ScrollView showsVerticalScrollIndicator={false}>
-            <Component title='Бесплатные курсы'/>
-            <Component title='Бестселлеры'/>
-            <Component title='Рекомендации для вас'/>
-            <Component title='Курсы со скидкой'/>
+
+        {users.map((item, index) => (
+            <UserItem key={index} title={item.title} list={item.list} />
+        ))}  
+
+        {courseCategoryList.map((item, index) => (
+            <Component key={index} title={item.title} onPress={() => handleNavigateToCatalog(item, index)} list={item.list} />
+        ))}
         </ScrollView>
     </SafeAreaView>
   )

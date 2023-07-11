@@ -40,9 +40,9 @@ export const MainNavigation = () => {
   return (
       <Stack.Navigator>
         {/* <Stack.Screen name="Help" options={{ headerShown: false }} component={Help} /> */}
-        <Stack.Screen name="WelcomePage" options={{ headerShown: false }} component={WelcomePage} />
+        {/* <Stack.Screen name="WelcomePage" options={{ headerShown: false }} component={WelcomePage} />
         <Stack.Screen name="WelcomeStack" options={{ headerShown: false }} component={WelcomeStack} />
-        <Stack.Screen name="AuthStack" options={{ headerShown: false }} component={AuthStack} />
+        <Stack.Screen name="AuthStack" options={{ headerShown: false }} component={AuthStack} /> */}
         <Stack.Screen name="App" options={{ headerShown: false }} component={App} />
       </Stack.Navigator>
   );
