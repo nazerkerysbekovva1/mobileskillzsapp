@@ -160,8 +160,8 @@ export const Catalog = ({ route }: { route: any }) => {
 									return (
 										<Text
 											key={item}
-                                            className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
-                                            onPress={() => toggleSales(item)}
+                      className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
+                      onPress={() => toggleSales(item)}
 										>
 											{item}
 										</Text>
@@ -188,8 +188,8 @@ export const Catalog = ({ route }: { route: any }) => {
 									return (
 										<Text
 											key={item}
-                                            className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
-                                            onPress={() => toggleCategories(item)}
+                      className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
+                      onPress={() => toggleCategories(item)}
 										>
 											{item}
 										</Text>
@@ -216,8 +216,8 @@ export const Catalog = ({ route }: { route: any }) => {
 									return (
 										<Text
 											key={item}
-                                            className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
-                                            onPress={() => toggleFormats(item)}
+                      className='mb-1 mr-3 px-4 py-1 border rounded-2xl border-gray-400 text-black'
+                      onPress={() => toggleFormats(item)}
 										>
 											{item}
 										</Text>

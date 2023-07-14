@@ -16,12 +16,16 @@ type PropData = {
   
   type Prop = PropData & {
     onPress?: () => void;
+    onPressCourseCard?: () => void;
   }
   
   type RootStackParamList = {
       catalog: {
           data: PropData;
-          dataList: PropData[];
+          // dataList: PropData[];
+      };
+      CourseCard: {
+          data: PropData;
       };
   };
   
@@ -30,13 +34,20 @@ type PropData = {
 
 const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
     // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
-    
+    const navigation = useNavigation<PersonalityScreenNavigationProp>();
+
+    const handleNavigateToCourseCard = () => {
+      navigation.navigate('CourseCard', {
+        data: { nameCatalog, src, price },
+      });
+    };
+
     const [activeLike, setActiveLike] = useState(false);
     const toggleLikeVisibility = () => {
         setActiveLike(!activeLike);
     };
     return(
-        <TouchableOpacity className='w-64 h-32 mr-4'>
+        <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
             <Image className='w-full h-full rounded-lg' source={src} />
                 <View className='absolute left-0 flex-row space-x-1 m-2'>
                     <Text className='bg-custom-Green px-1 rounded-xl text-black'>Web</Text>
@@ -57,12 +68,19 @@ const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
     )
 }
 
-const Component: React.FC<Prop> = ({ title, onPress, list }) => {
+const Component: React.FC<Prop> = ({ title, list }) => {
+  const navigation = useNavigation<PersonalityScreenNavigationProp>();
+
+  const handleNavigateToCatalog = () => {
+    navigation.navigate('catalog', {
+      data: {title, list},
+    });
+  };
     return(
         <View className='mb-3'>
             <View className='flex-row justify-between items-center mb-3'>
                 <Text className='text-xl font-bold text-white'>{title}</Text>
-                <TouchableOpacity onPress={onPress}>
+                <TouchableOpacity onPress={() => handleNavigateToCatalog()}>
                     <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
                 </TouchableOpacity>
             </View>
@@ -101,7 +119,7 @@ export const Digest = () => {
     const handleNavigateToCatalog = (data: PropData, index: number) => {
 		navigation.navigate('catalog', {
 			data: data,
-			dataList: courseCategoryList,
+			// dataList: courseCategoryList,
 		});
 	};
 
@@ -201,13 +219,6 @@ export const Digest = () => {
               price: '29 990 KZT',
               format: 'course',
             },
-            {
-              nameCatalog: 'Мобильная разработка',
-              title: 'Разработка под Android ',
-              src: require("../../../../../assets/3.jpg"),
-              price: '29 990 KZT',
-              format: 'webinar',
-            },
           ]
         },
       ]
@@ -241,7 +252,7 @@ export const Digest = () => {
         ))}  
 
         {courseCategoryList.map((item, index) => (
-            <Component key={index} title={item.title} onPress={() => handleNavigateToCatalog(item, index)} list={item.list} />
+            <Component key={index} title={item.title} list={item.list} />
         ))}
         </ScrollView>
     </SafeAreaView>
