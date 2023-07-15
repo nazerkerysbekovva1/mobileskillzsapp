@@ -2071,7 +2071,15 @@
     "@types/react" "*"
     "@types/react-native" "^0.70"
 
-"@types/react-native@^0.70":
+"@types/react-native-video@^5.0.15":
+  version "5.0.15"
+  resolved "https://registry.npmjs.org/@types/react-native-video/-/react-native-video-5.0.15.tgz"
+  integrity sha512-li3yBYQ+D5GqZl0Y+M/vCTPfZwVyUU67CtSjEg+/ERkgEpvHDH+gQaoc9O00ttXr8kvqEzpiC6Ca9juIfeIlMA==
+  dependencies:
+    "@types/react" "*"
+    "@types/react-native" "*"
+
+"@types/react-native@*", "@types/react-native@^0.70":
   version "0.70.14"
   resolved "https://registry.npmjs.org/@types/react-native/-/react-native-0.70.14.tgz"
   integrity sha512-Kwc+BYBrnDqvacNxKp1UtcZJnJJnTih2NYmi/ieAKlHdxEPN6sYMwmIwgHdoLHggvml6bf3DYRaH2jt+gzaLjw==
