@@ -93,25 +93,25 @@ const Component: React.FC<Prop> = ({ title, list }) => {
     )
 }
 
-const UserItem: React.FC<Prop> = ({title, onPress, list}) => {
-    return(
-        <View className='mb-3'>
-            <View className='flex-row justify-between items-center mb-3'>
-                <Text className='text-xl font-bold text-white'>{title}</Text>
-                <TouchableOpacity onPress={onPress}>
-                    <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
-                </TouchableOpacity>
-            </View>
-            <ScrollView horizontal>
-             {list?.map((item, index) => (
-                <TouchableOpacity key={index} onPress={onPress} className='w-24 h-18 mr-4'>
-                    <Image className='w-full h-full rounded-lg' source={item.src} />
-                </TouchableOpacity>
-             ))}
-            </ScrollView>
-        </View>
-    )
-}
+// const UserItem: React.FC<Prop> = ({title, onPress, list}) => {
+//     return(
+//         <View className='mb-3'>
+//             <View className='flex-row justify-between items-center mb-3'>
+//                 <Text className='text-xl font-bold text-white'>{title}</Text>
+//                 <TouchableOpacity onPress={onPress}>
+//                     <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
+//                 </TouchableOpacity>
+//             </View>
+//             <ScrollView horizontal>
+//              {list?.map((item, index) => (
+//                 <TouchableOpacity key={index} onPress={onPress} className='w-24 h-18 mr-4'>
+//                     <Image className='w-full h-full rounded-lg' source={item.src} />
+//                 </TouchableOpacity>
+//              ))}
+//             </ScrollView>
+//         </View>
+//     )
+// }
 
 export const Digest = () => {
     const navigation = useNavigation<PersonalityScreenNavigationProp>();
@@ -224,32 +224,33 @@ export const Digest = () => {
       ]
 
 
-      const users = [
-        {
-          title: 'Интересное',
-          list: [
-            {
-              src: require("../../../../../assets/ava.png"),
-            },
-            {
-              src: require("../../../../../assets/ava.png"),
-            },
-            {
-              src: require("../../../../../assets/ava.png"),
-            },
-            {
-              src: require("../../../../../assets/ava.png"),
-            },
-          ]
-        },
-      ]
+      // const users = [
+      //   {
+      //     title: 'Интересное',
+      //     list: [
+      //       {
+      //         src: require("../../../../../assets/ava.png"),
+      //       },
+      //       {
+      //         src: require("../../../../../assets/ava.png"),
+      //       },
+      //       {
+      //         src: require("../../../../../assets/ava.png"),
+      //       },
+      //       {
+      //         src: require("../../../../../assets/ava.png"),
+      //       },
+      //     ]
+      //   },
+      // ]
+      
   return(
     <SafeAreaView className="flex-1 bg-black p-4">
         <ScrollView showsVerticalScrollIndicator={false}>
 
-        {users.map((item, index) => (
+        {/* {users.map((item, index) => (
             <UserItem key={index} title={item.title} list={item.list} />
-        ))}  
+        ))}   */}
 
         {courseCategoryList.map((item, index) => (
             <Component key={index} title={item.title} list={item.list} />

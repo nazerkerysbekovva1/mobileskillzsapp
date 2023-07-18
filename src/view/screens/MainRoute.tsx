@@ -2,6 +2,7 @@ import React from 'react';
 import { Text } from 'react-native-elements';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import  Catalog from './app/Catalog';
+import Search from './app/Search';
 import { Icon } from '../../component/Icon';
 import { Config } from '../../Config';
 
@@ -41,7 +42,7 @@ const MainRoute = () => {
       })}
     >
       <Tab.Screen name='Catalog' options={{ headerShown: false }} component={Catalog} />
-      <Tab.Screen name='Search' options={{ headerShown: false }} component={Catalog} />
+      <Tab.Screen name='Search' options={{ headerShown: false }} component={Search} />
       <Tab.Screen name='My courses' options={{ headerShown: false }} component={Catalog} />
       <Tab.Screen name='Profile' options={{ headerShown: false }} component={Catalog} />
     </Tab.Navigator>
