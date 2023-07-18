@@ -13,11 +13,11 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.xponend.skillzhasapp</string>
+	<string>com.xponend.skillzapp</string>
 	<key>PROJECT_ID</key>
-	<string>skillzhasapp</string>
+	<string>skillzapp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>skillzhasapp.appspot.com</string>
+	<string>skillzapp.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
