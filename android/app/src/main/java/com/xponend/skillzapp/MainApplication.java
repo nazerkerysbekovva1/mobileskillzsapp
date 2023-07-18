@@ -1,4 +1,4 @@
-package com.mobileskillzhasapp;
+package com.xponend.skillzapp;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

@@ -93,9 +93,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.mobileskillzhasapp"
+    namespace "com.xponend.skillzapp"
     defaultConfig {
-        applicationId "com.mobileskillzhasapp"
+        applicationId "com.xponend.skillzapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
