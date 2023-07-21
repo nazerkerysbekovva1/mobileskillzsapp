@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, TextInput, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
@@ -31,13 +31,13 @@ type RootStackParamList = {
 
 type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
 
-const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
+const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
   // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
   const navigation = useNavigation<PersonalityScreenNavigationProp>();
 
   const handleNavigateToCourseCard = () => {
     navigation.navigate('CourseCard', {
-      data: { nameCatalog, src, price },
+      data: { title, src, price },
     });
   };
 
@@ -46,7 +46,7 @@ const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
       setActiveLike(!activeLike);
   };
   return(
-      <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
+      <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4 mb-3'>
           <Image className='w-full h-full rounded-lg' source={src} />
               <View className='absolute left-0 flex-row space-x-1 m-2'>
                   <Text className='bg-custom-Green px-1 rounded-xl text-black'>Web</Text>
@@ -61,7 +61,7 @@ const ComponentItem: React.FC<Prop> = ({nameCatalog, src, price}) => {
                       } 
                       size={24}/>
               </TouchableOpacity>
-              <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{nameCatalog}</Text>   
+              <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{title}</Text>   
              <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price}</Text>
       </TouchableOpacity>
   )
@@ -85,7 +85,7 @@ const handleNavigateToCatalog = () => {
           </View>
           <ScrollView horizontal>
            {list?.map((item, index) => (
-              <ComponentItem key={index} nameCatalog={item.nameCatalog} price={item.price} src={item.src} />
+              <ComponentItem key={index} title={item.title} price={item.price} src={item.src} />
            ))}
           </ScrollView>
       </View>
@@ -96,18 +96,43 @@ export const Search = ( ) => {
   const navigation = useNavigation();
   const [isTyping, setIsTyping] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [list, setList] = useState<PropData[]>([]);  // Initialize an empty list
 
   const handleTextInputChange = (text: string) => {
     setIsTyping(text.length >= 0);
     setSearchText(text);
+    handleSearch();
   };
+
+  const handleSearch = () => {
+    console.log('Search text:', searchText);
+    const filteredList: PropData[] = courseCategoryList.flatMap((category) =>
+      category.list.filter((item) =>
+        item.title.toLowerCase().includes(searchText.toLowerCase())
+      ).map((item) => ({
+        nameCatalog: item.nameCatalog,
+        title: item.title,
+        src: item.src,
+        price: item.price,
+        format: item.format,
+      }))
+    );
+    console.log('Filtered list:', filteredList);
+    setList(filteredList);
+  };
+  
 
   const handleBackPress = () => {
     console.log('button back');
+    Keyboard.dismiss();
+    setList(courseCategoryList);
+    setSearchText('');
+    setIsTyping(false);
   };
 
   const handleDeletePress = () => {
     console.log('button delete');
+    setSearchText('');
   };
 
   const [selectedSales, setSelectedSales] = useState<string[]>([]);
@@ -203,9 +228,12 @@ export const Search = ( ) => {
     },
   ]
 
+  const handleToCatalog = () => {
+    navigation.navigate('Catalog');
+  }
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <View>
             <View className='flex-row justify-between items-center bg-white rounded-3xl px-3 h-7'>
               <View className='flex-row items-center'>
                 {isTyping && (
@@ -218,6 +246,7 @@ export const Search = ( ) => {
                     className='text-black p-1 w-60'
                     placeholderTextColor="black"
                     onChangeText={handleTextInputChange}
+                    value={searchText}
                     />
               </View>
               
@@ -232,8 +261,31 @@ export const Search = ( ) => {
                   </TouchableOpacity>
                 )}
             </View>
-
-            {!isTyping && 
+            
+            {isTyping ? (
+              <View className='py-5'>
+                  <Text className='text-2xl font-bold text-white py-1'>Результаты поиска</Text>
+                  {list.length === 0 ? (
+                    <View className='items-center justify-center' style={{height: '90%'}}>
+                        <Text className='text-white py-1'>По вашему запросу ничего не найдено</Text>
+                        <TouchableOpacity onPress={handleToCatalog} className="mt-5 bg-custom-Green rounded-xl items-center py-2 w-48">
+                          <Text className="font-bold text-black text-base">Перейти в каталог</Text>
+                        </TouchableOpacity >
+                    </View> 
+                  ) : (
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      {list.map((item, index) => (
+                        <ComponentItem
+                          key={index}
+                          title={item.title}
+                          price={item.price}
+                          src={item.src}
+                        />
+                ))}
+                    </ScrollView>
+                  )}
+              </View>
+            ) : (
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View className='flex-row flex-wrap py-5'>
                     {selectedSales.map((item) => (
@@ -318,13 +370,16 @@ export const Search = ( ) => {
                   </View>
 
                   {courseCategoryList.map((item, index) => (
-                      <Component key={index} title={item.title} list={item.list} />
+                      <Component 
+                        key={index} 
+                        title={item.title} 
+                        list={item.list} />
                   ))}
 
                 </ScrollView>
-              }
+              )}
 
-        </ScrollView>
+        </View>
     </SafeAreaView>
   );
 }
