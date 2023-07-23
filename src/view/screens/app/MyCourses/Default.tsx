@@ -6,7 +6,7 @@ export const Default = () => {
     const navigation = useNavigation();
 
     const handleToLogin = () => {
-        navigation.navigate('Login');
+        navigation.navigate('AuthStack');
       }
     return(
       <SafeAreaView className='flex-1 bg-black p-4'>

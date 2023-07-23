@@ -48,7 +48,7 @@ export const MainNavigation = () => {
   );
 }
 
-const WelcomeStack = () => {
+export const WelcomeStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Route" options={{ headerShown: false }} component={Route} />
@@ -56,7 +56,7 @@ const WelcomeStack = () => {
   );
 };
 
-const AuthStack = () => {
+export const AuthStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Login" options={{ headerShown: false }} component={Login} />
@@ -65,7 +65,7 @@ const AuthStack = () => {
   );
 };
 
-const App = () => {
+export const App = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="MainRoute" options={{ headerShown: false }} component={MainRoute} />
