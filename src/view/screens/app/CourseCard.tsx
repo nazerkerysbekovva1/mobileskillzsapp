@@ -190,7 +190,7 @@ export const CourseCard = ({ route }: { route: any }) => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon src={require('../../../../assets/icon/arrow-left.png')} size={20}/>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Basket')}>
               <Icon src={require('../../../../assets/icon/shopping.png')} size={24}/>
           </TouchableOpacity>
         </View>

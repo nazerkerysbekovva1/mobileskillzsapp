@@ -115,7 +115,7 @@ export const Catalog = ({ route }: { route: any }) => {
             <TouchableOpacity onPress={openModal}>
                 <Icon src={require('../../../../../assets/icon/setting.png')} size={24}/>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Basket')}>
                 <Icon src={require('../../../../../assets/icon/shopping.png')} size={24}/>
             </TouchableOpacity>
         </View>

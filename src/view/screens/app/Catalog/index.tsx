@@ -10,17 +10,20 @@ import { Text } from 'react-native-elements';
 import { Icon } from '../../../../component/Icon';
 import { Catalog } from './Catalog';
 import { CourseCard } from '../CourseCard';
+import { useNavigation } from '@react-navigation/native';
 
 const Tab = createMaterialTopTabNavigator();
 
 const MainCatalog = () => {
+  const navigation = useNavigation();
+
     return(
-        <SafeAreaView className='flex-1 bg-black items-center p-8'>
+        <SafeAreaView className='flex-1 bg-black items-center py-8 px-4'>
           <View className='w-full flex-row justify-between'>
               <Text className='text-custom-Green font-bold text-lg'>
                 Hello, <Text className='text-white font-bold'>NewUser</Text>
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Basket')}>
                   <Icon src={require('../../../../../assets/icon/shopping.png')} size={24}/>
               </TouchableOpacity>
           </View>

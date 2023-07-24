@@ -28,6 +28,7 @@ import { WelcomePage } from './WelcomePage';
 import { Login } from '../view/screens/auth/Login';
 import { Signup } from '../view/screens/auth/Signup';
 import MainRoute from '../view/screens/MainRoute';
+import { Basket } from '../view/screens/app/Basket';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -69,6 +70,7 @@ export const App = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="MainRoute" options={{ headerShown: false }} component={MainRoute} />
+      <Stack.Screen name="Basket" options={{ headerShown: false }} component={Basket} />
     </Stack.Navigator>
   );
 };
