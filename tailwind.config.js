@@ -79,6 +79,7 @@ module.exports = {
         'transparent-90': '#00000090',
         'custom-Green': '#D8F76E',
         'custom-Gray': '#242424',
+        'custom-Blue': '#0D99FF',
       },
       borderRadius: size,
       fontSize: size,
