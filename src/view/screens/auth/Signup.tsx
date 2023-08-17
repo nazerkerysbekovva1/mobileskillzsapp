@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, Text } from 'react-native-elements';
-import { View, TextInput, Dimensions, TouchableOpacity } from 'react-native';
+import { View, TextInput, Dimensions, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {PreviousNextView} from 'react-native-keyboard-manager';
+import KeyboardManager from 'react-native-keyboard-manager';
+// import {PreviousNextView} from 'react-native-keyboard-manager';
 import {appleAuth} from '@invertase/react-native-apple-authentication';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {GoogleSignin, statusCodes} from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
+// import auth from '@react-native-firebase/auth';
 
 import { register } from '../../../data/client/http-client';
 
 interface NavigationProps {
 	navigation: any;
+}
+
+if (Platform.OS === 'ios') {
+  KeyboardManager.setToolbarPreviousNextButtonEnable(true);
+  KeyboardManager.setEnable(true);
+  KeyboardManager.setEnableAutoToolbar(true);
+  KeyboardManager.setToolbarDoneBarButtonItemText('Done');
 }
 
 export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
@@ -30,18 +38,85 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
 		setShowConfirmPassword(!showConfirmPassword);
 	  };
     
-    const [firstTime, setFirstTime] = useState(true);
+    // google sign in
+      const [user, setUser] = useState({})
+      useEffect(() => {
+        GoogleSignin.configure({
+          webClientId: '284738965177-2m0ovbgi5polvea5ipis0cq1og69ebbb.apps.googleusercontent.com',
+          offlineAccess: true,
+          forceCodeForRefreshToken: true,
+        });
+        isSignedIn()
+      }, [])
 
-    GoogleSignin.configure({
-        webClientId:
-        '284738965177-2m0ovbgi5polvea5ipis0cq1og69ebbb.apps.googleusercontent.com',
-    });
+      async function handleSignInGoogle() {
+        console.log('Sign in with Google click');
+        try{
+          await GoogleSignin.hasPlayServices();
+          const userInfo = await GoogleSignin.signIn();
+          console.log('due___', userInfo)
+          setUser(userInfo);
+          navigation.navigate('App');
+        } catch(error: any){
+          console.log('Message___', error.message);
+          if(error.code === statusCodes.SIGN_IN_CANCELLED){
+            console.log('User Canceled the Login Flow');
+          } else if(error.code === statusCodes.IN_PROGRESS){
+            console.log('Signing In');
+          } else if(error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE){
+            console.log('Play Services Not Avaliable');
+          } else{
+            console.log('Some other Error Happened');
+          }
+        }
+      };
 
-    const setSignedOutForTesting = async () => {
-        AsyncStorage.clear();
-    };
+      const isSignedIn = async() => {
+        const isSignedIn = await GoogleSignin.isSignedIn();
+        if(!!isSignedIn){
+          getCurrentUserInfo()
+        } else{
+          console.log('Please Login');
+        }
+      }
 
+      const getCurrentUserInfo = async() => {
+        try{
+          const userInfo = await GoogleSignin.signInSilently();
+          console.log('edit___', user);
+          setUser(userInfo);
+        } catch(error: any) {
+          if(error.code === statusCodes.SIGN_IN_REQUIRED){
+            // Alert.alert('User has not signed in yest');
+            console.log('User has not signed in yest')
+          } else{
+            // Alert.alert('Something went wrong!');
+            console.log('Something went wrong!');
+          }
+        }
+      }
+
+      const googleSignOut = async () => {
+        try{
+          await GoogleSignin.revokeAccess();
+          await GoogleSignin.signOut();
+          setUser({});
+        } catch(error) {
+          console.log(error);
+        }
+      }
+
+    // sign up
     const handleSignup = async () => {
+        if (email === '' || password === '' || confirmPassword === '') {
+            Alert.alert('Missing Fields', 'Please fill in all the required fields.');
+            return;
+        }
+        if (password !== confirmPassword) {
+            Alert.alert('Passwords Mismatch', 'The passwords you entered do not match.');
+            return;
+        }
+        
         console.log('Email:', email);
         console.log('Password:', password);
         try {
@@ -54,6 +129,7 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
           }
       };
     
+    // apple sign in
     async function handleSignInApple() {
         console.log('Sign in with Apple click');
         try {
@@ -88,37 +164,6 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
             } else {
               console.log('Error:', error);
             }
-          }
-      };
-
-      async function handleSignInGoogle() {
-        console.log('Sign in with Google click');
-        try {
-            if (firstTime) {
-              setFirstTime(false);
-              await setSignedOutForTesting();
-            }
-      
-            const isSignedIn = await AsyncStorage.getItem('isSignedIn');
-            console.log('Checking your sign in status.');
-      
-            if (isSignedIn) {
-              console.log('You are signed in.');
-              navigation.navigate('App');
-            } else {
-              console.log('You are NOT signed in.');
-              const {idToken} = await GoogleSignin.signIn();
-              const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-              const userSignIn = auth().signInWithCredential(googleCredential);
-      
-              userSignIn.then((re: any) => {
-                console.log(re);
-                AsyncStorage.setItem('isSignedIn', 'true');
-                navigation.navigate('App');
-              });
-            }
-          } catch (error) {
-            console.log('Sign-in error:', error);
           }
       };
 
@@ -162,7 +207,7 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
                                 style={{resizeMode: 'contain', width: eyeIconSize, height: eyeIconSize }}
                             />
                         </TouchableOpacity>
-						<TextInput 
+						              <TextInput 
                             placeholder="Подтвердить пароль" 
                             secureTextEntry={!showConfirmPassword}
                             value={confirmPassword} 

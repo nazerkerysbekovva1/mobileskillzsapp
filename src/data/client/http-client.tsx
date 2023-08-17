@@ -34,9 +34,7 @@ const api = axios.create({
   //   (error) => {
   //     if (
   //       (error.response && error.response.status === 401) ||
-  //       (error.response && error.response.status === 403) ||
-  //       (error.response &&
-  //         error.response.data.message === 'ZHASAPP_ERROR.NOT_AUTHORIZED')
+  //       (error.response && error.response.status === 403) 
   //     ) {
   //       removeAuthToken();
   //     }
