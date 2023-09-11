@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Image, Text } from 'react-native-elements';
 import { View, TextInput, Dimensions, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Config } from '../../../Config';
+import { API_ENDPOINTS } from '../../../data/client/endpoints';
 
 import KeyboardManager from 'react-native-keyboard-manager';
 // import {PreviousNextView} from 'react-native-keyboard-manager';
@@ -9,6 +11,8 @@ import {appleAuth} from '@invertase/react-native-apple-authentication';
 import {GoogleSignin, statusCodes} from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import auth from '@react-native-firebase/auth';
+
+import { useMutation } from 'react-query';
 
 import { register } from '../../../data/client/http-client';
 
@@ -25,8 +29,9 @@ if (Platform.OS === 'ios') {
 
 export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
 	const [email, setEmail] = useState('');
+	const [full_name, setFull_name] = useState('');
 	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
+	const [password_confirmation, setPassword_confirmation] = useState('');
   
 	const [showLoginPassword, setShowLoginPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -76,7 +81,7 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
         if(!!isSignedIn){
           getCurrentUserInfo()
         } else{
-          console.log('Please Login');
+          console.log('Please Sign up');
         }
       }
 
@@ -107,27 +112,18 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
       }
 
     // sign up
+
+    const mutation = useMutation(register, {
+        onSuccess: () => {
+            navigation.navigate("App");
+        }
+    })
+
     const handleSignup = async () => {
-        if (email === '' || password === '' || confirmPassword === '') {
-            Alert.alert('Missing Fields', 'Please fill in all the required fields.');
-            return;
-        }
-        if (password !== confirmPassword) {
-            Alert.alert('Passwords Mismatch', 'The passwords you entered do not match.');
-            return;
-        }
-        
-        console.log('Email:', email);
-        console.log('Password:', password);
-        try {
-            const userData = await register(email, password, confirmPassword);
-            console.log(userData);
-            // await AsyncStorage.setItem('@access_token', userData.token);
-            navigation.navigate('App');
-            } catch (error) {
-            console.log('NAZ', error);
-          }
-      };
+      mutation.mutate({
+        email, full_name, password, password_confirmation
+       })
+    }
     
     // apple sign in
     async function handleSignInApple() {
@@ -189,6 +185,12 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
                             placeholderTextColor="black" 
                             className="mt-5 bg-white rounded-md text-black font-bold px-4 py-1"/>
                         <TextInput 
+                            placeholder="Full Name" 
+                            value={full_name} 
+                            onChangeText={setFull_name}
+                            placeholderTextColor="black" 
+                            className="mt-5 bg-white rounded-md text-black font-bold px-4 py-1"/>
+                        <TextInput 
                             placeholder="Пароль" 
                             secureTextEntry={!showLoginPassword} 
                             value={password} 
@@ -196,7 +198,8 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
                             placeholderTextColor="black"  
                             className="mt-5 bg-white rounded-md text-black font-bold px-4 py-1"/>
                          <TouchableOpacity
-                            className='absolute top-28 right-0 pr-3'
+                            className='absolute right-0 pr-3'
+                            style={{top: 168}}
                             onPress={toggleLoginPasswordVisibility}>
                             <Image
                                 source={
@@ -210,13 +213,13 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
 						              <TextInput 
                             placeholder="Подтвердить пароль" 
                             secureTextEntry={!showConfirmPassword}
-                            value={confirmPassword} 
-                            onChangeText={setConfirmPassword}
+                            value={password_confirmation} 
+                            onChangeText={setPassword_confirmation}
                             placeholderTextColor="black"  
                             className="mt-5 bg-white rounded-md text-black font-bold px-4 py-1"/>
                          <TouchableOpacity
                             className='absolute right-0 pr-3'
-                            style={{top: 168}}
+                            style={{top: 225}}
                             onPress={toggleConfirmPasswordVisibility}>
                             <Image
                                 source={
@@ -228,7 +231,11 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
                             />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={handleSignup} className="mt-5 bg-custom-Green rounded-md items-center py-2">
+                          {!email || !full_name || !password || password !== password_confirmation &&
+                              ( <Text className='text-red-500 -mb-3'>Something wents wrong. please check</Text> )}
+                        <TouchableOpacity 
+                          onPress={handleSignup} 
+                          className="mt-5 bg-custom-Green rounded-md items-center py-2">
                             <Text className="font-bold text-black">Зарегистрироваться</Text>
                         </TouchableOpacity >
                     </View>

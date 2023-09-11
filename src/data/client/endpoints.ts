@@ -1,4 +1,11 @@
 export const API_ENDPOINTS = {   ////
+  USERS_LOGIN: '/login',
+  USERS_REGISTER: '/register',
+  USERS_LOGOUT: '/logout',
+  USERS_FORGOT_PASSWORD: '/forget-password',
+
+  USERS_GOOGLE: '/google',
+  
     COURSES: '/courses',
     COURSES_POPULAR: '/popular-courses',
     COURSES_FREE_DOWNLOAD: '/free-downloads/digital-file',
@@ -17,13 +24,9 @@ export const API_ENDPOINTS = {   ////
     GENERATE_DOWNLOADABLE_PRODUCT_LINK: '/downloads/digital-file',
     USERS: '/users',
     USERS_ME: '/me',
-    USERS_LOGIN: '/token',
-    USERS_REGISTER: '/register',
-    USERS_FORGOT_PASSWORD: '/forget-password',
     USERS_VERIFY_FORGOT_PASSWORD_TOKEN: '/verify-forget-password-token',
     USERS_RESET_PASSWORD: '/reset-password',
     USERS_CHANGE_PASSWORD: '/change-password',
-    USERS_LOGOUT: '/logout',
     USERS_WISHLIST: '/my-wishlists',
     WISHLIST: '/wishlists',
     USERS_WISHLIST_TOGGLE: '/wishlists/toggle',

@@ -4,6 +4,8 @@ import { Image, Text } from 'react-native-elements';
 import { View, StyleSheet, TextInput, Dimensions, TouchableOpacity, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../../component/Icon';
+import { Config } from '../../../Config';
+import { API_ENDPOINTS } from '../../../data/client/endpoints';
 
 import KeyboardManager from 'react-native-keyboard-manager';
 // import {PreviousNextView} from 'react-native-keyboard-manager';
@@ -14,10 +16,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TouchID from 'react-native-touch-id';
 
-import { login } from '../../../data/client/http-client';
+import { useMutation } from 'react-query';
+import { login, forgotPassword } from '../../../data/client/http-client';
 
 interface NavigationProps {
 	navigation: any;
+}
+
+interface ApiResponse {
+  status: number;
+  data?: any; // Adjust the type based on the actual response structure
 }
 
 if (Platform.OS === 'ios') {
@@ -28,8 +36,8 @@ if (Platform.OS === 'ios') {
 }
 
 export const Login: React.FC<NavigationProps> = ({ navigation }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     
     const [loginPassword, setLoginPassword] = useState('');
     const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -67,7 +75,7 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
       } else if(error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE){
         console.log('Play Services Not Avaliable');
       } else{
-        console.log('Some other Error Happened');
+        console.log('Some other Error Happened:', error);
       }
     }
   };
@@ -103,28 +111,37 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
       await GoogleSignin.signOut();
       setUser({});
     } catch(error) {
-      console.log(error);
+      console.log(error); 
     }
   }
 
     // login
-    const handleLogin = async () => {
-        if (email === '' || password === '') {
-            Alert.alert('Missing Fields', 'Please fill in all the required fields.');
-            return;
-        }
+    const mutationLogin = useMutation(login, {
+      onSuccess: async () => {
+        navigation.navigate("App");
+      }
+    });
 
-        console.log('Email:', email);
-        console.log('Password:', password);
-        try {
-            const userData = await login(email, password);
-            console.log(userData);
-            // await AsyncStorage.setItem('@access_token', userData.token);
-            navigation.navigate('App');
-            } catch (error) { 
-            console.log(error);
-          }
-      };
+    const handleLogin = async () => {
+      try {
+        const response = await mutationLogin.mutateAsync({
+          username,
+          password
+        });
+    
+        const responseData = await response.json();
+        const userAuthToken = responseData.userAuthToken; 
+        if (userAuthToken) {
+          await AsyncStorage.setItem('userAuthToken', userAuthToken);
+          navigation.navigate("App");
+        } else {
+          console.error('Login error: userAuthToken is missing in the response');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+      }
+    }
+  
     
     // apple sign in
       async function handleSignInApple() {
@@ -193,8 +210,8 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
                         <Text className="text-lg font-bold text-white">Войти в аккаунт</Text>
                         <TextInput 
                             placeholder="Email" 
-                            value={email} 
-                            onChangeText={setEmail}
+                            value={username} 
+                            onChangeText={setUsername}
                             placeholderTextColor="black" 
                             className="mt-5 bg-white rounded-md text-black font-bold px-4 py-1"/>
                         <TextInput 
@@ -217,7 +234,13 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
                             />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={handleLogin} className="mt-5 bg-custom-Green rounded-md items-center py-2">
+                        {/* {mutation.isError && 
+                              ( <Text className='text-red-500 -mb-3'>An error occurred: {JSON.stringify(mutation.error)}</Text> )} */}
+                        {!username || !password &&
+                              ( <Text className='text-red-500 -mb-3'>Please fill in all the required fields.</Text> )}
+                        <TouchableOpacity 
+                          onPress={handleLogin} 
+                          className="mt-5 bg-custom-Green rounded-md items-center py-2">
                             <Text className="font-bold text-black">Войти</Text>
                         </TouchableOpacity >
                     </View>
@@ -245,6 +268,9 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
 
                     <TouchableOpacity onPress={()=>navigation.navigate('Signup')}>
                         <Text className="text-base font-bold text-custom-Green text-center">Зарегистрироваться</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')}>
+                        <Text className="text-sm text-custom-Green text-center">Забыли пароль?</Text>
                     </TouchableOpacity>
                 </View>
 			</SafeAreaView>

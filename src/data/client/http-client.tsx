@@ -5,191 +5,222 @@ import { Alert } from 'react-native';
 // import { useQuery, QueryClient } from 'react-query';
 // import { getAuthToken, removeAuthToken } from './token.utils';
 
+import { API_ENDPOINTS } from './endpoints';
+import { Config } from '../../Config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const api = axios.create({
-    baseURL: 'https://skill.zhasapp.com/',
-    timeout: 150000000,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
 
-  // api.interceptors.request.use(
-  //   (config) => {
-  //     const token = getAuthToken();
-  //     //@ts-ignore
-  //     config.headers = {
-  //       ...config.headers,
-  //       Authorization: `Bearer ${token ? token : ''}`,
-  //     };
-  //     return config;
-  //   },
-  //   (error) => {
-  //     return Promise.reject(error);
-  //   }
-  // );
+// const handleForgotPassword = async () => {
+//   const requestData = {
+//     username: email, 
+//     // Add other fields if needed
+//   };
 
-  // api.interceptors.response.use(
-  //   (response) => response,
-  //   (error) => {
-  //     if (
-  //       (error.response && error.response.status === 401) ||
-  //       (error.response && error.response.status === 403) 
-  //     ) {
-  //       removeAuthToken();
-  //     }
-  //     return Promise.reject(error);
-  //   }
-  // );
+//   if (email === '') {
+//     Alert.alert('Missing Email', 'Please enter your email address.');
+//     return;
+//   }
 
-// AUTH
+//   try {
+//     const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_FORGOT_PASSWORD, {
+//       method: 'POST',
+//       headers: {
+//         'Accept': 'application/json',
+//         'Content-Type': 'application/json',
+//         // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+//       },
+//       body: JSON.stringify(requestData),
+//     });
 
-// export async function login(
-//   email: string, 
-//   password: string
-// ): Promise<any> {
-//     try {
-//       const response = await api.post('/login', {
-//         email,
-//         password,
+//     if (response.ok) {
+//       console.log('Password reset request sent successfully.');
+//     } else {
+//       console.error('Failed to send password reset request.');
+//     }
+//   } catch (error) {
+//     console.error('Failed to connect to the server');
+//   }
+// };
+
+
+// const handleGoogleSignIn = async () => {
+
+//   try {
+//     const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_GOOGLE, {
+//       method: 'POST',
+//       headers: {
+//         'Accept': 'application/json',
+//         'Content-Type': 'application/json',
+//         // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+//       },
+//       body: JSON.stringify(requestData),
+//     });
+
+//     if (response.ok) {
+//       navigation.navigate('App');
+//     } else {
+//       console.error('Failed to register with Google');
+//     }
+//   } catch (error) {
+//     console.error('Failed to connect to the server');
+//   }
+// };
+
+interface RegistrationData {
+    email: string;
+    full_name: string;
+    password: string;
+    password_confirmation: string;
+  }
+export function register({ email, full_name, password, password_confirmation }: RegistrationData) : Promise<Response> {
+    const data = {
+        email,
+        full_name,
+        password,
+        password_confirmation
+    };
+    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_REGISTER}`);
+    return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_REGISTER}`, {
+        method: "POST",
+        headers : {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                  },
+        body: JSON.stringify(data)
+    })
+}
+
+interface LoginData {
+    username: string;
+    password: string;
+  }
+export function login({ username, password }: LoginData) : Promise<Response> {
+    const data = {
+        username,
+        password,
+    };
+    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`);
+    return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`, {
+        method: "POST",
+        headers : {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                          // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+                  },
+        body: JSON.stringify(data),
+    })
+}
+
+
+export const logout = async() => {
+    const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGOUT}`);
+    return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGOUT}`, {
+        method: "GET",
+        headers : {
+                    'Authorization': `Bearer ${userAuthToken}`,
+                  },
+    })
+}
+
+ 
+interface EmailOrPhoneData {
+    username: string;
+  }
+export function forgotPassword({username}: EmailOrPhoneData) : Promise<Response> {
+    const data = { username }
+    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_FORGOT_PASSWORD}`);
+    return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_FORGOT_PASSWORD}`, {
+        method: "POST",
+        headers : {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                          // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+                  },
+        body: JSON.stringify(data),
+    })
+}
+
+// export const register = async () => {
+//     const registrationData = {
+//       full_name,
+//       email,
+//       password,
+//       password_confirmation,
+//     };
+//       if (full_name === '' || email === '' || password === '' || password_confirmation === '') {
+//           Alert.alert('Missing Fields', 'Please fill in all the required fields.');
+//           return;
+//       }
+//       if (password !== password_confirmation) {
+//           Alert.alert('Passwords Mismatch', 'The passwords you entered do not match.');
+//           return;
+//       }
+      
+//       console.log('Email:', email);
+//       console.log('Password:', password);
+
+//       try {
+//         const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_REGISTER, {
+//           method  : 'POST',
+//           headers : {
+//               'Accept': 'application/json',
+//               'Content-Type': 'application/json',
+//               // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+//           },
+//           body: JSON.stringify(registrationData),
 //       });
-  
-//       if (response.status === 200) {
-//         return response.data;
-//       } else if (response.status === 400) {
-//         throw new Error('Failed to log in. Invalid credentials or missing fields.');
+//       if (response.ok) {
+//         // const data = await response.json();
+//         navigation.navigate('Login');
+//         // return data;
 //       } else {
-//         throw new Error('Failed to log in. Please try again later.');
+//         // Handle other status codes or errors
+//         throw new Error('Failed to log in');
 //       }
 //     } catch (error) {
-//       throw new Error('NNN Failed to log in. Please check your internet connection.');
+//       // Handle network errors or exceptions
+//       throw new Error('Failed to connect to the server');
 //     }
 //   }
 
-        
-      export const login = (email: string, password: string) => {
 
-          const [error, setError] = useState({errorEmail:'', errorPassword: ''}),
-                [success, setSuccess] = useState('');
+// const handleLogin = async () => {
+//     const requestData = {
+//       username,
+//       password,
+//     };
 
-          if (!email || !password) {
-            Alert.alert('Please enter all the required fields');
-          } else {
-            api
-              .post('/login', { email, password })
-              .then(response => {
-                if (response.data.status) {
-                  setError({
-                    errorEmail: '', 
-                    errorPassword: '',
-                  });
-                  setSuccess('Login successful');
-                } else {
-                  console.log(response.data.messages);
-                  const errorEmailMsg = response.data.messages.email
-                    ? response.data.messages.email[0]
-                    : '';
-                  const errorPassMsg = response.data.messages.password
-                    ? response.data.messages.password[0]
-                    : '';
-      
-                  setError({
-                    errorEmail: errorEmailMsg,
-                    errorPassword: errorPassMsg,
-                  });
-                }
-              })
-              .catch(e => console.log(e.message));
-          }
-        };
+//       if (username === '' || password === '') {
+//           Alert.alert('Missing Fields', 'Please fill in all the required fields.');
+//           return;
+//       }
 
-  // export async function register(
-  //   email: string,
-  //   password: string,
-  //   accountType?: string,
-  //   country?: string,
-  //   fullname?: string,
-  //   timeZone?: string,
-  //   additionalData?: string,
-  // ): Promise<void> {
-  //   try {
-  //     const response = await api.post('/register', null, {
-  //       params: {
-  //         accountType,
-  //         email,
-  //         country,
-  //         fullname,
-  //         password,
-  //         timeZone,
-  //         additionalData
-  //       },
-  //     });
-  
-  //     if (response.status !== 201) {
-  //       throw new Error('Failed to register user. Please try again later.');
-  //     }
-  //   } catch (error) {
-  //     const errorObj = error as { response?: { status: number } };
-  
-  //     if (errorObj.response?.status === 400) {
-  //       throw new Error('Bad Request. Please check your registration data.');
-  //     } else {
-  //       throw new Error('NNN Failed to register user. Please check your internet connection.');
-  //     }
-  //   }
-  // }
+//       console.log('Username:', username);
+//       console.log('Password:', password);
 
-  export const register = (email: string, password: string, confirmPassword: string) => {
-
-    const [error, setError] = useState({errorEmail:'', errorPassword: ''}),
-          [success, setSuccess] = useState('');
-
-    if (!email || !password && password == confirmPassword) {
-      Alert.alert('Please enter all the required fields');
-    } else {
-      api
-        .post('/register', { email, password })
-        .then(response => {
-          if (response.data.status) {
-            setError({
-              errorEmail: '', 
-              errorPassword: '',
-            });
-            setSuccess('Registration successful');
-          } else {
-            console.log(response.data.messages);
-            const errorEmailMsg = response.data.messages.email
-              ? response.data.messages.email[0]
-              : '';
-            const errorPassMsg = response.data.messages.password
-              ? response.data.messages.password[0]
-              : '';
-
-            setError({
-              errorEmail: errorEmailMsg,
-              errorPassword: errorPassMsg,
-            });
-          }
-        })
-        .catch(e => console.log(e.message));
-    }
-
-    // return error, success;
-  };
-  
-  export async function logout(
-    id: string
-  ): Promise<void> {
-    try {
-      const response = await api.post('/logout', {
-        id,
-      });
-  
-      if (response.status !== 200) {
-        throw new Error('Failed to log out. Please try again later.');
-      }
-    } catch (error) {
-      throw new Error('Failed to log out. Please check your internet connection.');
-    }
-  }
-  
+//       try {
+//         const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_LOGIN, {
+//           method  : 'POST',
+//           headers : {
+//               'Accept': 'application/json',
+//               'Content-Type': 'application/json',
+//               // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
+//           },
+//           body: JSON.stringify(requestData),
+//       });
+//       if (response.ok) {
+//         const data = await response.json();
+//         await AsyncStorage.setItem('user_login','1');
+//         await AsyncStorage.setItem('user',JSON.stringify(data.user));
+//         navigation.navigate('App');
+//         // return data;
+//       } else {
+//         // Handle other status codes or errors
+//         throw new Error('Failed to log in');
+//       }
+//     } catch (error) {
+//       // Handle network errors or exceptions
+//       throw new Error('Failed to connect to the server');
+//     }
+//   }

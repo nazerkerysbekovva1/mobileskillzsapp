@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator();
 
 const Index = () => {
     return(
-      <Stack.Navigator initialRouteName="MentorProfile">
+      <Stack.Navigator initialRouteName="UserProfile">
       <Stack.Screen name="UserProfile" options={{ headerShown: false }} component={UserProfile} />
         <Stack.Screen name="MentorProfile" options={{ headerShown: false }} component={MentorProfile} />
       </Stack.Navigator>

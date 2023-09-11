@@ -14,11 +14,16 @@ import { Basket } from '../view/screens/app/Basket';
 import MentorProfile from '../view/screens/app/Profile/MentorProfile';
 import { ArticleItem } from '../view/screens/app/Profile/MentorProfile/ArticleItem';
 
+import { QueryClient, QueryClientProvider } from 'react-query'
+
+const queryClient = new QueryClient()
+
 const Stack = createNativeStackNavigator();
 
 export const MainNavigation = () => {
 
   return (
+    <QueryClientProvider client={queryClient}>
       <Stack.Navigator initialRouteName='WelcomePage'>
         {/* <Stack.Screen name="Help" options={{ headerShown: false }} component={Help} /> */}
         <Stack.Screen name="WelcomePage" options={{ headerShown: false }} component={WelcomePage} />
@@ -26,6 +31,7 @@ export const MainNavigation = () => {
         <Stack.Screen name="App" options={{ headerShown: false }} component={App} />
         <Stack.Screen name="WelcomeStack" options={{ headerShown: false }} component={WelcomeStack} />
       </Stack.Navigator>
+    </QueryClientProvider>
   );
 }
 

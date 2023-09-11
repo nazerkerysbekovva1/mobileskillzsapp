@@ -6,6 +6,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Profile } from './Profile';
 import { Default } from './Default';
 
+import { useMutation } from 'react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logout } from '../../../../../data/client/http-client';
+
 const Stack = createNativeStackNavigator();
 
 const Index = () => {
@@ -36,6 +40,9 @@ const PropMenu: React.FC<Prop> = ({navigate, name}) => {
     )
 }
 const MainProfile = () => {
+    const navigation = useNavigation();
+
+    const [isOpen, setIsOpen] = useState(false);
 
     const settings = [
         {
@@ -76,6 +83,22 @@ const MainProfile = () => {
             navigate: ''
         },]
 
+        const toggleVisibilityLogout = () => {
+            setIsOpen(!isOpen);
+          };
+
+          const mutation = useMutation(logout, {
+            onSuccess: async () => {
+              navigation.navigate("AuthStack");
+            }
+          });
+      
+          // logout
+        const handleLogout = async () => {
+            mutation.mutate()
+            
+        }
+
     return(
         <SafeAreaView className='flex-1 bg-black'>
             <ImageBackground className="flex-1 -mb-20" source={require('../../../../../../assets/profile-bg.png')}>
@@ -85,9 +108,14 @@ const MainProfile = () => {
                     </View>
                     <Text className='text-lg text-black font-bold'>Мария Иванова</Text>
                     <Text className='text-black'>ivanova.maria@gmail.com</Text>
-                    <TouchableOpacity className='absolute right-0 rounded-full p-1 bg-black'>
+                    <TouchableOpacity onPress={toggleVisibilityLogout} className='absolute right-0 rounded-full p-1 bg-black'>
                         <Icon src={require('../../../../../../assets/icon/setting2.png')} size={20}/>
                     </TouchableOpacity>
+                    {isOpen &&
+                        <TouchableOpacity onPress={handleLogout} className='absolute right-7 rounded-lg bg-black p-3'>
+                            <Text className='text-white text-base'>Logout</Text>
+                        </TouchableOpacity>
+                    }
 			    </View>
                 
                 <View className='bg-black h-full rounded-lg py-4 px-10'>

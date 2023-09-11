@@ -32,7 +32,7 @@ export async function getUserData(token) {
 	if (content.status == '1') {
 		AsyncStorage.setItem('user', content.data.user);
 	} else {
-		return;
+		return; 
 	}
 
 }
