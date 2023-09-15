@@ -5,10 +5,14 @@ import { useNavigation } from '@react-navigation/native';
 import { Icon } from '../../../../component/Icon';
 import { StackNavigationProp } from '@react-navigation/stack';
 
+import { useMutation, useQuery } from 'react-query';
+import { fetchData } from '../../../../data/client/http-client';
+
+import { API_ENDPOINTS } from '../../../../data/client/endpoints';
+
 type PropData = {
   title: string;
-  src?: any;
-  course: number;
+  image?: any;
   webinar: number;
 };
 
@@ -18,126 +22,126 @@ type Prop = PropData & {
 
 type RootStackParamList = {
 	catalog: {
-		data: PropData;
-		dataList: PropData[];
+    id: number;
 	};
 };
 
 type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
 
-const ComponentItem: React.FC<Prop> = ({title, src, course, webinar, onPress}) => {
-  // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
+const ComponentItem: React.FC<Prop> = ({title, image, webinar, onPress}) => {
+  const imageSource = image ? { uri: image } : require("../../../../../assets/default-image.png");
+
 
   return(
       <TouchableOpacity onPress={onPress} className='w-full h-32 mb-4'>
-          <Image className='w-full h-full rounded-lg' source={src} />
+          <Image className='w-full h-full rounded-lg' source={imageSource} />
               <Text className='absolute left-0 bg-custom-Green px-1 rounded-xl text-black font-bold text-lg m-2'>{title}</Text>
               
               <Text 
                 className='absolute right-0 bottom-0 m-2 bg-custom-Green px-2 py-1 rounded-xl text-black text-xs'>
-                  {webinar} webinar {'\n'}
-                  {course} course
+                  {webinar} webinar
               </Text>
       </TouchableOpacity>
   )
 }
 
-export const Category = () => {
+const Category = () => {
 
   const navigation = useNavigation<PersonalityScreenNavigationProp>();
 
-  const courseCategoryList = [
-    {
-      title: 'Разработка',
-      course: 0,
-      webinar: 0, 
-      src: require("../../../../../assets/1.jpg"),
-      list: [
-        {
-          nameCatalog: 'Веб разработка',
-          title: 'Введение в JavaScript ',
-          src: require("../../../../../assets/1.jpg"),
-          price: 'Free',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под iOS',
-          src: require("../../../../../assets/2.jpg"),
-          price: '29 990 KZT',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под Android ',
-          src: require("../../../../../assets/2.jpg"),
-          price: '29 990 KZT',
-          format: 'webinar',
-        },
-        {
-          nameCatalog: 'Веб разработка',
-          title: 'Введение в JavaScript ',
-          src: require("../../../../../assets/1.jpg"),
-          price: '29 990 KZT',
-          format: 'course',
-        },
-      ]
-    },
-    {
-      title: 'Бизнес',
-      course: 0,
-      webinar: 0, 
-      src: require("../../../../../assets/2.jpg"),
-      list: [],
-    },
-    {
-      title: 'Маркетинг',
-      course: 0,
-      webinar: 0, 
-      src: require("../../../../../assets/3.jpg"),
-      list: [],
-    },
-    {
-      title: 'Здоровье и фитнес',
-      course: 0,
-      webinar: 0, 
-      src: require("../../../../../assets/1.jpg"),
-      list: [],
-    },
-    {
-      title: 'Лайфстайл',
-      course: 0,
-      webinar: 0, 
-      src: require("../../../../../assets/2.jpg"),
-      list: [],
-    },
-  ]
+  const { data, error, isLoading } = useQuery('categories', () => fetchData(API_ENDPOINTS.CATEGORIES));
+  // console.log(data.data);
+
+  // const courseCategoryList = [
+  //   {
+  //     title: 'Разработка',
+  //     course: 0,
+  //     webinar: 0, 
+  //     src: require("../../../../../assets/1.jpg"),
+  //     list: [
+  //       {
+  //         nameCatalog: 'Веб разработка',
+  //         title: 'Введение в JavaScript ',
+  //         src: require("../../../../../assets/1.jpg"),
+  //         price: 'Free',
+  //         format: 'course',
+  //       },
+  //       {
+  //         nameCatalog: 'Мобильная разработка',
+  //         title: 'Разработка под iOS',
+  //         src: require("../../../../../assets/2.jpg"),
+  //         price: '29 990 KZT',
+  //         format: 'course',
+  //       },
+  //       {
+  //         nameCatalog: 'Мобильная разработка',
+  //         title: 'Разработка под Android ',
+  //         src: require("../../../../../assets/2.jpg"),
+  //         price: '29 990 KZT',
+  //         format: 'webinar',
+  //       },
+  //       {
+  //         nameCatalog: 'Веб разработка',
+  //         title: 'Введение в JavaScript ',
+  //         src: require("../../../../../assets/1.jpg"),
+  //         price: '29 990 KZT',
+  //         format: 'course',
+  //       },
+  //     ]
+  //   },
+  //   {
+  //     title: 'Бизнес',
+  //     course: 0,
+  //     webinar: 0, 
+  //     src: require("../../../../../assets/2.jpg"),
+  //     list: [],
+  //   },
+  //   {
+  //     title: 'Маркетинг',
+  //     course: 0,
+  //     webinar: 0, 
+  //     src: require("../../../../../assets/3.jpg"),
+  //     list: [],
+  //   },
+  //   {
+  //     title: 'Здоровье и фитнес',
+  //     course: 0,
+  //     webinar: 0, 
+  //     src: require("../../../../../assets/1.jpg"),
+  //     list: [],
+  //   },
+  //   {
+  //     title: 'Лайфстайл',
+  //     course: 0,
+  //     webinar: 0, 
+  //     src: require("../../../../../assets/2.jpg"),
+  //     list: [],
+  //   },
+  // ]
 
   // Calculate the sum of courses and webinars for each category
-  courseCategoryList.forEach(category => {
-    category.course = category.list.filter(item => item.format === 'course').length;
-    category.webinar = category.list.filter(item => item.format === 'webinar').length;
-  });
+  // courseCategoryList.forEach(category => {
+  //   category.course = category.list.filter(item => item.format === 'course').length;
+  //   category.webinar = category.list.filter(item => item.format === 'webinar').length;
+  // });
   
 
-  const handleNavigateToCatalog = (data: PropData, index: number) => {
+  const handleNavigateToCatalog = (id: number) => {
 		navigation.navigate('catalog', {
-			data: data,
-			dataList: courseCategoryList,
+			id: id,
 		});
 	};
 
   return(
     <SafeAreaView className="flex-1 bg-black p-4">
         <ScrollView showsVerticalScrollIndicator={false}>
-          {courseCategoryList.map((data, index) => 
+          {data?.data.categories.map((item: any) => 
           <ComponentItem 
-              key={index}
-              title={data.title}
-              course={data.course}
-              webinar={data.webinar}
-              src={data.src}
-              onPress={() => handleNavigateToCatalog(data, index)}
+              key={item.index}
+              title={item.title}
+              webinar={item.webinars_count}
+              image={item.image}
+              onPress={() => handleNavigateToCatalog(item.id)}
           />
           )}
         </ScrollView>
@@ -145,3 +149,4 @@ export const Category = () => {
   )
 };
 
+export default Category;

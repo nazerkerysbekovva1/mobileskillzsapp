@@ -1,19 +1,26 @@
-export const API_ENDPOINTS = {   ////
+export const API_ENDPOINTS = {   
+  //auth
   USERS_LOGIN: '/login',
   USERS_REGISTER: '/register',
   USERS_LOGOUT: '/logout',
   USERS_FORGOT_PASSWORD: '/forget-password',
+  //
+  FEATURED_COURSES: '/featured-courses',
+  CATEGORIES: '/categories',
+  COURSES: '/courses',
+  WEBINARS: '/webinars',
+
+  NEWEST: 'classes?sort=newest',
+  BESTSELLERS: 'bestsellers',
 
   USERS_GOOGLE: '/google',
   
-    COURSES: '/courses',
     COURSES_POPULAR: '/popular-courses',
     COURSES_FREE_DOWNLOAD: '/free-downloads/digital-file',
     COURSES_REVIEWS: '/reviews',
     COURSES_REVIEWS_ABUSE_REPORT: '/abusive_reports',
     COURSES_QUESTIONS: '/questions',
     COURSES_FEEDBACK: '/feedbacks',
-    CATEGORIES: '/categories',
     TAGS: '/tags',
     TYPES: '/types',
     SHOPS: '/shops',

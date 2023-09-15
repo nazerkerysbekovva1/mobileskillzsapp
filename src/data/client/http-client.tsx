@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 // import { useAtom } from 'jotai';
@@ -8,39 +8,8 @@ import { Alert } from 'react-native';
 import { API_ENDPOINTS } from './endpoints';
 import { Config } from '../../Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery, useMutation } from 'react-query';
 
-
-// const handleForgotPassword = async () => {
-//   const requestData = {
-//     username: email, 
-//     // Add other fields if needed
-//   };
-
-//   if (email === '') {
-//     Alert.alert('Missing Email', 'Please enter your email address.');
-//     return;
-//   }
-
-//   try {
-//     const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_FORGOT_PASSWORD, {
-//       method: 'POST',
-//       headers: {
-//         'Accept': 'application/json',
-//         'Content-Type': 'application/json',
-//         // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
-//       },
-//       body: JSON.stringify(requestData),
-//     });
-
-//     if (response.ok) {
-//       console.log('Password reset request sent successfully.');
-//     } else {
-//       console.error('Failed to send password reset request.');
-//     }
-//   } catch (error) {
-//     console.error('Failed to connect to the server');
-//   }
-// };
 
 
 // const handleGoogleSignIn = async () => {
@@ -79,7 +48,7 @@ export function register({ email, full_name, password, password_confirmation }: 
         password,
         password_confirmation
     };
-    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_REGISTER}`);
+    // console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_REGISTER}`);
     return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_REGISTER}`, {
         method: "POST",
         headers : {
@@ -94,27 +63,45 @@ interface LoginData {
     username: string;
     password: string;
   }
-export function login({ username, password }: LoginData) : Promise<Response> {
+export async function login({ username, password }: LoginData) : Promise<Response> {
     const data = {
         username,
         password,
     };
-    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`);
-    return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`, {
+    // console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`);
+    const response = await fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`, {
         method: "POST",
         headers : {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                          // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
                   },
         body: JSON.stringify(data),
     })
+    if(response.ok){
+        const responseData = await response.json();
+        await AsyncStorage.setItem('user_login','1');
+        await AsyncStorage.setItem('user', JSON.stringify(responseData.user));
+    }
+    return response
+}
+
+export async function userLogin(): Promise<boolean> {
+    const value = await AsyncStorage.getItem('user_login');
+    return value === '1';
+}
+  
+  export async function userData(): Promise<any[]> {
+    const value = await AsyncStorage.getItem('user');
+    if (!value || value === '') {
+      return [];
+    }
+    return JSON.parse(value);
 }
 
 
 export const logout = async() => {
     const userAuthToken = await AsyncStorage.getItem('userAuthToken');
-    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGOUT}`);
+    // console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGOUT}`);
     return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGOUT}`, {
         method: "GET",
         headers : {
@@ -129,7 +116,7 @@ interface EmailOrPhoneData {
   }
 export function forgotPassword({username}: EmailOrPhoneData) : Promise<Response> {
     const data = { username }
-    console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_FORGOT_PASSWORD}`);
+    // console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_FORGOT_PASSWORD}`);
     return fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_FORGOT_PASSWORD}`, {
         method: "POST",
         headers : {
@@ -141,86 +128,42 @@ export function forgotPassword({username}: EmailOrPhoneData) : Promise<Response>
     })
 }
 
-// export const register = async () => {
-//     const registrationData = {
-//       full_name,
-//       email,
-//       password,
-//       password_confirmation,
-//     };
-//       if (full_name === '' || email === '' || password === '' || password_confirmation === '') {
-//           Alert.alert('Missing Fields', 'Please fill in all the required fields.');
-//           return;
-//       }
-//       if (password !== password_confirmation) {
-//           Alert.alert('Passwords Mismatch', 'The passwords you entered do not match.');
-//           return;
-//       }
-      
-//       console.log('Email:', email);
-//       console.log('Password:', password);
 
-//       try {
-//         const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_REGISTER, {
-//           method  : 'POST',
-//           headers : {
-//               'Accept': 'application/json',
-//               'Content-Type': 'application/json',
-//               // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
-//           },
-//           body: JSON.stringify(registrationData),
-//       });
-//       if (response.ok) {
-//         // const data = await response.json();
-//         navigation.navigate('Login');
-//         // return data;
-//       } else {
-//         // Handle other status codes or errors
-//         throw new Error('Failed to log in');
-//       }
-//     } catch (error) {
-//       // Handle network errors or exceptions
-//       throw new Error('Failed to connect to the server');
-//     }
-//   }
+function getData (endpoint: string) : Promise<Response> {
+    // console.log(`${Config.apiUrl}/api/development${endpoint}`);
+    return fetch(`${Config.apiUrl}/api/development${endpoint}`, {
+        method: 'GET',
+        headers : {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': Config.secret
+        },
+    })
+}
+export const fetchData = async (endpoint: string) =>{
+    const response = await getData(endpoint);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
 
+function getWebinarsOfCategory (id: number) : Promise<Response> {
+    console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.CATEGORIES}/${id}${API_ENDPOINTS.WEBINARS}`);
+    return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.CATEGORIES}/${id}${API_ENDPOINTS.WEBINARS}`, {
+        method: 'GET',
+        headers : {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': Config.secret
+        },
+    })
+}
+export const fetchWebinarsOfCategory = async (id: number) =>{
+    const response = await getWebinarsOfCategory(id);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
 
-// const handleLogin = async () => {
-//     const requestData = {
-//       username,
-//       password,
-//     };
-
-//       if (username === '' || password === '') {
-//           Alert.alert('Missing Fields', 'Please fill in all the required fields.');
-//           return;
-//       }
-
-//       console.log('Username:', username);
-//       console.log('Password:', password);
-
-//       try {
-//         const response = await fetch(Config.apiUrl+API_ENDPOINTS.USERS_LOGIN, {
-//           method  : 'POST',
-//           headers : {
-//               'Accept': 'application/json',
-//               'Content-Type': 'application/json',
-//               // 'X-CSRF-TOKEN': csrfToken, // Replace with your CSRF token
-//           },
-//           body: JSON.stringify(requestData),
-//       });
-//       if (response.ok) {
-//         const data = await response.json();
-//         await AsyncStorage.setItem('user_login','1');
-//         await AsyncStorage.setItem('user',JSON.stringify(data.user));
-//         navigation.navigate('App');
-//         // return data;
-//       } else {
-//         // Handle other status codes or errors
-//         throw new Error('Failed to log in');
-//       }
-//     } catch (error) {
-//       // Handle network errors or exceptions
-//       throw new Error('Failed to connect to the server');
-//     }
-//   }

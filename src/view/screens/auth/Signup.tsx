@@ -115,7 +115,7 @@ export const Signup: React.FC<NavigationProps> = ({ navigation }) => {
 
     const mutation = useMutation(register, {
         onSuccess: () => {
-            navigation.navigate("App");
+            navigation.navigate("Login");
         }
     })
 

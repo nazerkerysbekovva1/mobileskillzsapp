@@ -1,6 +1,6 @@
 const Config = {
 	// apiUrl: 'http://127.0.0.1:8000',
-	apiUrl: 'https://skill.zhasapp.com/',
+	apiUrl: 'https://skill.zhasapp.com',
 	secret: 'zhasapp1234',
 	version: '1',
 	// color: '#000',
