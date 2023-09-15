@@ -11,7 +11,7 @@ import { fetchData, Course } from '../../../../data/client/http-client';
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
 type PropData = {
-    nameCatalog?: string;
+    category?: string;
     title?: string;
     image?: any;
     price_string?: string;
@@ -37,7 +37,7 @@ type PropData = {
   type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
   
 
-const ComponentItem: React.FC<Prop> = ({title, image, type, price_string}) => {
+const ComponentItem: React.FC<Prop> = ({title, image, type, price_string, category}) => {
     const navigation = useNavigation<PersonalityScreenNavigationProp>();
 
     const handleNavigateToCourseCard = () => {
@@ -56,10 +56,8 @@ const ComponentItem: React.FC<Prop> = ({title, image, type, price_string}) => {
     return(
         <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
             <Image className='w-full h-full rounded-lg' source={imageSource} />
-                <View className='absolute left-0 flex-row space-x-1 m-2'>
-                    <Text className='bg-custom-Green px-1 rounded-xl text-black'>{type}</Text>
-                    {/* <Text className='bg-custom-Green px-1 rounded-xl text-black'>iOS</Text> */}
-                </View>
+                <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{category}</Text>
+                <Text className='bg-custom-Green px-1 rounded-xl text-black'>{type}</Text>
                 <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                     <Icon 
                         src={
@@ -93,7 +91,7 @@ const Component: React.FC<Prop> = ({ title, list }) => {
             </View>
             <ScrollView horizontal>
              {list?.map((item, index) => (
-                <ComponentItem key={index} title={item.title} price_string={item.price_string} image={item.image} type={item.type}/>
+                <ComponentItem key={index} title={item.title} price_string={item.price_string} image={item.image} type={item.type} category={item.category}/>
              ))}
             </ScrollView>
         </View>
@@ -124,14 +122,20 @@ const Digest = () => {
 
   const { data: featuredCourses, error, isLoading } = useQuery('featuredCourses', () => fetchData(API_ENDPOINTS.FEATURED_COURSES));
 
-  const { data: courses } = useQuery('courses', () => fetchData(API_ENDPOINTS.FEATURED_COURSES));
+  const { data: courses } = useQuery('courses', () => fetchData(API_ENDPOINTS.COURSES));
 
   const getBestsellers = (data: Course[]) => {
-    const sortedData = data.filter((value) => value.rate == '5.00');
-    const bestsellers = sortedData.slice(0, 3);
+    const sortedData = data?.filter((value) => value.rate == '5.00');
+    const bestsellers = sortedData?.slice(0, 3);
     return bestsellers;
   };
-  console.log(getBestsellers(courses.data));
+
+  const getNewestCourses = (data: Course[]) => {
+    const sortedData = data.sort((a, b) => b.created_at - a.created_at);
+    const newestCourses = sortedData.slice(0, 3);
+
+    return newestCourses;
+  };
 
     const navigation = useNavigation<PersonalityScreenNavigationProp>();
 
@@ -149,11 +153,11 @@ const Digest = () => {
         },
         {
           title: 'Бестселлеры',
-          list: courses.data,
+          list: getBestsellers(courses?.data),
         },
         {
-          title: 'Рекомендации для вас',
-          list: []
+          title: 'Новое',
+          list: getNewestCourses(courses?.data),
         },
         {
           title: 'Курсы со скидкой',

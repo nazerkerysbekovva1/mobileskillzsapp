@@ -167,3 +167,7 @@ export const fetchWebinarsOfCategory = async (id: number) =>{
     return response.json();
 }
 
+export interface Course {
+    rate: string,
+    created_at: number,
+}

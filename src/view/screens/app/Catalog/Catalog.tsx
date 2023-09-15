@@ -62,7 +62,7 @@ export const Catalog = ({ route }: { route: any }) => {
     const navigation = useNavigation<Navigation>();
 
     const id = route?.params.id;
-    const { data, error, isLoading } = useQuery('webinars', () => fetchWebinarsOfCategory(id));
+    const { data, error, isLoading } = useQuery('webinarsOfCategory', () => fetchWebinarsOfCategory(id));
     console.log(data?.data);
 
     const [modalVisible, setModalVisible] = useState(false);
