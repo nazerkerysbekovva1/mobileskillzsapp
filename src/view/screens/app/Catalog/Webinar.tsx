@@ -5,26 +5,17 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { useQuery } from 'react-query';
-import { fetchData } from '../../../../data/client/http-client';
+import { fetchData, CourseData } from '../../../../data/client/http-client';
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
-type Prop = {
-  category: string;
-  title: string;
-  image?: any;
-  price_string?: string;
-  type: string;
-  is_favorite: boolean;
-};
+const ComponentItem: React.FC<CourseData> = (data) => {
+  const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
 
-const ComponentItem: React.FC<Prop> = ({category, title, image, price_string, type, is_favorite}) => {
-  const imageSource = image ? { uri: image } : require("../../../../../assets/default-image.png");
-
-  const [activeLike, setActiveLike] = useState(is_favorite);
+  const [activeLike, setActiveLike] = useState(data.is_favorite);
   
   useEffect(() => {
-      setActiveLike(is_favorite);
-  }, [is_favorite]);
+      setActiveLike(data.is_favorite);
+  }, [data.is_favorite]);
 
   const toggleLikeVisibility = () => {
       setActiveLike(!activeLike);        // POST: set 'is_favorite'
@@ -32,8 +23,8 @@ const ComponentItem: React.FC<Prop> = ({category, title, image, price_string, ty
   return(
       <TouchableOpacity className='w-full h-40 mb-4'>
           <Image className='w-full h-full rounded-lg' source={imageSource} />
-                  <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{category}</Text>
-                  <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{type}</Text>
+                  <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
+                  <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.type}</Text>
               <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                   <Icon 
                       src={
@@ -43,8 +34,8 @@ const ComponentItem: React.FC<Prop> = ({category, title, image, price_string, ty
                       } 
                       size={24}/>
               </TouchableOpacity>
-              <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{title}</Text>   
-             <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price_string}</Text>
+              <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{data.title}</Text>   
+             <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{data.price_string}</Text>
       </TouchableOpacity>
   )
 }
@@ -65,8 +56,9 @@ export const Webinar = () => {
             isLoading ? ( <Text className='text-xl font-bold text-white'>Loading...</Text> 
             ) :  error ? (<Text className='text-xl font-bold text-white'>error</Text> 
             ) : data ? (
-              getWebinars().map((item: Prop) => 
+              getWebinars().map((item: CourseData, index: number) => 
                 <ComponentItem 
+                    key={index}
                     category={item.category} 
                     title={item.title} 
                     image={item.image} 

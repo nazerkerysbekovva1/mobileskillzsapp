@@ -167,7 +167,73 @@ export const fetchWebinarsOfCategory = async (id: number) =>{
     return response.json();
 }
 
-export interface Course {
-    rate: string,
+
+export interface CourseData {
+    image?: string;
+    auth?: boolean;
+    can?: {
+      view: boolean;
+    };
+    can_view_error?: null | string;
+    id?: number;
+    status?: string;
+    label?: string;
+    title?: string;
+    type?: string;
+    link?: string;
+    access_days?: number;
+    live_webinar_status?: null | string;
+    auth_has_bought?: null | boolean;
+    sales?: {
+      count: number;
+      amount: number;
+    };
+    is_favorite?: boolean;
+    price_string?: string;
+    best_ticket_string?: null | string;
+    price?: number;
+    tax?: number;
+    tax_with_discount?: number;
+    best_ticket_price?: number;
+    discount_percent?: number;
+    course_page_tax?: number;
+    price_with_discount?: number;
+    discount_amount?: number;
+    active_special_offer?: null | string;
+    duration?: number;
+    teacher?: {
+      id: number;
+      full_name: string;
+      role_name: string;
+      bio: string;
+      offline: number;
+      offline_message: null | string;
+      verified: number;
+      rate: string;
+      avatar: string;
+      meeting_status: string;
+      user_group: null | string;
+      address: null | string;
+    };
+    students_count?: number;
+    rate?: string;
+    rate_type?: {
+      content_quality: number;
+      instructor_skills: number;
+      purchase_worth: number;
+      support_quality: number;
+    };
+    created_at?: number;
+    start_date?: null | string;
+    purchased_at?: null | string;
+    reviews_count?: number;
+    points?: null | string;
+    progress?: null | string;
+    progress_percent?: null | string;
+    category?: string;
+    capacity?: null | string;
+  }
+  export interface CourseQuery{
+    rate: string;
     created_at: number,
-}
+  }

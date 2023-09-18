@@ -29,11 +29,11 @@ type RootStackParamList = {
     };
 };
 
-type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+type NavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
 
 const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
   // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
-  const navigation = useNavigation<PersonalityScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
 
   const handleNavigateToCourseCard = () => {
     navigation.navigate('CourseCard', {
@@ -68,7 +68,7 @@ const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
 }
 
 const Component: React.FC<Prop> = ({ title, list }) => {
-const navigation = useNavigation<PersonalityScreenNavigationProp>();
+const navigation = useNavigation<NavigationProp>();
 
 const handleNavigateToCatalog = () => {
   navigation.navigate('catalog', {

@@ -30,11 +30,11 @@ type RootStackParamList = {
     };
 };
 
-type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+type NavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
 
 const ComponentItem: React.FC<Prop> = ({title, src, valueSlider}) => {
   // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
-  const navigation = useNavigation<PersonalityScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
 
   const [value, setValue] = useState(valueSlider || 0);
 

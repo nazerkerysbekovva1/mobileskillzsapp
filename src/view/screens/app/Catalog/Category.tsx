@@ -26,20 +26,20 @@ type RootStackParamList = {
 	};
 };
 
-type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-const ComponentItem: React.FC<Prop> = ({title, image, webinar, onPress}) => {
-  const imageSource = image ? { uri: image } : require("../../../../../assets/default-image.png");
+const ComponentItem: React.FC<Prop> = (data) => {
+  const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
 
 
   return(
-      <TouchableOpacity onPress={onPress} className='w-full h-32 mb-4'>
+      <TouchableOpacity onPress={data.onPress} className='w-full h-32 mb-4'>
           <Image className='w-full h-full rounded-lg' source={imageSource} />
-              <Text className='absolute left-0 bg-custom-Green px-1 rounded-xl text-black font-bold text-lg m-2'>{title}</Text>
+              <Text className='absolute left-0 bg-custom-Green px-1 rounded-xl text-black font-bold text-lg m-2'>{data.title}</Text>
               
               <Text 
                 className='absolute right-0 bottom-0 m-2 bg-custom-Green px-2 py-1 rounded-xl text-black text-xs'>
-                  {webinar} webinar
+                  {data.webinar} webinar
               </Text>
       </TouchableOpacity>
   )
@@ -47,7 +47,7 @@ const ComponentItem: React.FC<Prop> = ({title, image, webinar, onPress}) => {
 
 const Category = () => {
 
-  const navigation = useNavigation<PersonalityScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
 
   const { data, error, isLoading } = useQuery('categories', () => fetchData(API_ENDPOINTS.CATEGORIES));
   // console.log(data.data);
@@ -133,11 +133,11 @@ const Category = () => {
 	};
 
   return(
-    <SafeAreaView className="flex-1 bg-black p-4">
+    <SafeAreaView className="flex-1 bg-black px-4 pt-4">
         <ScrollView showsVerticalScrollIndicator={false}>
-          {data?.data.categories.map((item: any) => 
+          {data?.data.categories.map((item: any, index: number) => 
           <ComponentItem 
-              key={item.index}
+              key={index}
               title={item.title}
               webinar={item.webinars_count}
               image={item.image}

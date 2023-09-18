@@ -6,43 +6,37 @@ import { Icon } from '../../../../component/Icon';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { useMutation, useQuery } from 'react-query';
-import { fetchData, Course } from '../../../../data/client/http-client';
+import { fetchData, CourseData, CourseQuery } from '../../../../data/client/http-client';
 
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
-type PropData = {
-    category?: string;
-    title?: string;
-    image?: any;
-    price_string?: string;
-    list?: PropData[];
-    type?: string;
-  };
-  
-  type Prop = PropData & {
+type Prop = CourseData & {
+    list?: CourseData[];
     onPress?: () => void;
     onPressCourseCard?: () => void;
-  }
+  };
   
   type RootStackParamList = {
       catalog: {
-          data: PropData;
+          data: CourseData;
           // dataList: PropData[];
       };
       CourseCard: {
-          data: PropData;
+          data: CourseData;
       };
   };
   
-  type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+  type NavigationProp = StackNavigationProp<RootStackParamList>;
   
 
-const ComponentItem: React.FC<Prop> = ({title, image, type, price_string, category}) => {
-    const navigation = useNavigation<PersonalityScreenNavigationProp>();
+const ComponentItem: React.FC<CourseData> = (data) => {
+    const navigation = useNavigation<NavigationProp>();
 
-    const handleNavigateToCourseCard = () => {
+    console.log('ComponentItem', data);
+
+    const handleNavigateToCourseCard = (data: CourseData) => {
       navigation.navigate('CourseCard', {
-        data: { title, image, price_string },
+        data,
       });
     };
 
@@ -51,13 +45,13 @@ const ComponentItem: React.FC<Prop> = ({title, image, type, price_string, catego
         setActiveLike(!activeLike);
     };
 
-    const imageSource = image ? { uri: image } : require("../../../../../assets/default-image.png");
+    const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
 
     return(
-        <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
+        <TouchableOpacity onPress={() => handleNavigateToCourseCard(data)} className='w-64 h-32 mr-4'>
             <Image className='w-full h-full rounded-lg' source={imageSource} />
-                <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{category}</Text>
-                <Text className='bg-custom-Green px-1 rounded-xl text-black'>{type}</Text>
+                <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
+                <Text className='bg-custom-Green px-1 rounded-xl text-black'>{data.type}</Text>
                 <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                     <Icon 
                         src={
@@ -67,30 +61,32 @@ const ComponentItem: React.FC<Prop> = ({title, image, type, price_string, catego
                         } 
                         size={24}/>
                 </TouchableOpacity>
-                <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{title}</Text>   
-               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price_string}</Text>
+                <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{data.title}</Text>   
+               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{data.price_string}</Text>
         </TouchableOpacity>
     )
 }
 
-const Component: React.FC<Prop> = ({ title, list }) => {
-  const navigation = useNavigation<PersonalityScreenNavigationProp>();
+const Component: React.FC<Prop> = (data) => {
+  const navigation = useNavigation<NavigationProp>();
 
-  const handleNavigateToCatalog = () => {
+  console.log('Component', data);
+
+  const handleNavigateToCatalog = (data: CourseData) => {
     navigation.navigate('catalog', {
-      data: {title, list},
+      data,
     });
   };
     return(
         <View className='mb-3'>
             <View className='flex-row justify-between items-center mb-3'>
-                <Text className='text-xl font-bold text-white'>{title}</Text>
-                <TouchableOpacity onPress={() => handleNavigateToCatalog()}>
+                <Text className='text-xl font-bold text-white'>{data.title}</Text>
+                <TouchableOpacity onPress={() => handleNavigateToCatalog(data)}>
                     <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
                 </TouchableOpacity>
             </View>
             <ScrollView horizontal>
-             {list?.map((item, index) => (
+             {data.list?.map((item, index) => (
                 <ComponentItem key={index} title={item.title} price_string={item.price_string} image={item.image} type={item.type} category={item.category}/>
              ))}
             </ScrollView>
@@ -124,27 +120,17 @@ const Digest = () => {
 
   const { data: courses } = useQuery('courses', () => fetchData(API_ENDPOINTS.COURSES));
 
-  const getBestsellers = (data: Course[]) => {
+  const getBestsellers = (data: CourseData[]) => {
     const sortedData = data?.filter((value) => value.rate == '5.00');
     const bestsellers = sortedData?.slice(0, 3);
     return bestsellers;
   };
 
-  const getNewestCourses = (data: Course[]) => {
+  const getNewestCourses = (data: CourseQuery[]) => {
     const sortedData = data.sort((a, b) => b.created_at - a.created_at);
     const newestCourses = sortedData.slice(0, 3);
-
     return newestCourses;
   };
-
-    const navigation = useNavigation<PersonalityScreenNavigationProp>();
-
-    const handleNavigateToCatalog = (data: PropData, index: number) => {
-		navigation.navigate('catalog', {
-			data: data,
-			// dataList: courseCategoryList,
-		});
-	};
 
     const courseList = [
         {
@@ -179,30 +165,9 @@ const Digest = () => {
           ]
         },
       ]
-
-
-      // const users = [
-      //   {
-      //     title: 'Интересное',
-      //     list: [
-      //       {
-      //         src: require("../../../../../assets/ava.png"),
-      //       },
-      //       {
-      //         src: require("../../../../../assets/ava.png"),
-      //       },
-      //       {
-      //         src: require("../../../../../assets/ava.png"),
-      //       },
-      //       {
-      //         src: require("../../../../../assets/ava.png"),
-      //       },
-      //     ]
-      //   },
-      // ]
       
   return(
-    <SafeAreaView className="flex-1 bg-black p-4">
+    <SafeAreaView className="flex-1 bg-black px-4 pt-4">
         <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* {users.map((item, index) => (
@@ -213,8 +178,8 @@ const Digest = () => {
           isLoading ? ( <Text className='text-xl font-bold text-white'>Loading...</Text> 
           ) :  error ? (<Text className='text-xl font-bold text-white'>error</Text> 
           ) : courseList ? (
-            courseList.map((item: any) => (
-              <Component key={item.id} title={item.title} list={item.list} />
+            courseList.map((item: Prop, index: number) => (
+              <Component key={index} title={item.title} list={item.list} />
           )) 
           ) : ( <Text className='text-xl font-bold text-white'>Data is not available</Text> 
         )}

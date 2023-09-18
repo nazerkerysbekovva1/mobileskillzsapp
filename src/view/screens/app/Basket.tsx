@@ -29,7 +29,7 @@ type PropData = {
       };
   };
   
-  type PersonalityScreenNavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
 
   
 export const Basket = () => {

@@ -20,7 +20,7 @@ const MainCatalog = () => {
   const navigation = useNavigation();
 
     return(
-        <SafeAreaView className='flex-1 bg-black items-center py-8 px-4'>
+        <SafeAreaView className='flex-1 bg-black items-center pt-8 px-4'>
           <View className='w-full flex-row justify-between'>
               <Text className='text-custom-Green font-bold text-lg'>
                 Hello, <Text className='text-white font-bold'>NewUser</Text>
@@ -48,7 +48,7 @@ const MainCatalog = () => {
 
 const styles = StyleSheet.create({
     tabBarStyle: {
-      width: 351,
+      width: 381,
       height: 43,
       backgroundColor: 'transparent',
       borderBottomColor: 'gray',

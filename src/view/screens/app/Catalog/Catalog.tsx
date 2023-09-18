@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { useQuery } from 'react-query';
-import { fetchWebinarsOfCategory } from '../../../../data/client/http-client';
+import { fetchWebinarsOfCategory, CourseData } from '../../../../data/client/http-client';
 import { CustomModal } from './FilterModal';
 
 type RootStackParamList = {
@@ -15,16 +15,7 @@ type RootStackParamList = {
 	};
 };
 
-type Prop = {
-    category: string;
-    title: string;
-    image?: any;
-    price_string?: string;
-    type: string;
-    is_favorite: boolean;
-};
-
-const ComponentItem: React.FC<Prop> = ({category, title, image, price_string, type, is_favorite}) => {
+const ComponentItem: React.FC<CourseData> = ({category, title, image, price_string, type, is_favorite}) => {
     const imageSource = image ? { uri: image } : require("../../../../../assets/default-image.png");
 
     const [activeLike, setActiveLike] = useState(is_favorite);
@@ -56,14 +47,17 @@ const ComponentItem: React.FC<Prop> = ({category, title, image, price_string, ty
     )
 }
 
-type Navigation = StackNavigationProp<RootStackParamList, 'catalog'>;
+type Navigation = StackNavigationProp<RootStackParamList>;
 
 export const Catalog = ({ route }: { route: any }) => {
     const navigation = useNavigation<Navigation>();
 
+    // webinars Of Category screen
     const id = route?.params.id;
-    const { data, error, isLoading } = useQuery('webinarsOfCategory', () => fetchWebinarsOfCategory(id));
-    console.log(data?.data);
+    const { data: webinarsOfCategory, error, isLoading } = useQuery('webinarsOfCategory', () => fetchWebinarsOfCategory(id));
+
+    // courses of main (Digest)
+    const data = route?.params.data;
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -99,8 +93,20 @@ export const Catalog = ({ route }: { route: any }) => {
         </View>
       </View>
       <ScrollView className='pt-2' showsVerticalScrollIndicator={false}>
-        {data?.data.webinars.map((item: Prop) => 
-            <ComponentItem 
+        {webinarsOfCategory && webinarsOfCategory?.data.webinars.map((item: CourseData, index: number) => 
+            <ComponentItem
+              key={index} 
+              category={item.category} 
+              title={item.title} 
+              image={item.image} 
+              price_string={item.price_string} 
+              type={item.type}
+              is_favorite={item.is_favorite}/>
+        )}
+
+        {data && data?.list.map((item: CourseData, index: number) => 
+            <ComponentItem
+              key={index} 
               category={item.category} 
               title={item.title} 
               image={item.image} 

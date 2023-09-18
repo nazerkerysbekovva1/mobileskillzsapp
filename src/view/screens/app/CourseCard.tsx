@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
 
+
 interface Item {
   id: string;
   name: string;
@@ -56,6 +57,8 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
 
 export const CourseCard = ({ route }: { route: any }) => {
   const navigation = useNavigation();
+
+  const courseData = route?.params.data;
 
   const [isPlaying, setIsPlaying] = useState(false);  
   const [showFullText, setShowFullText] = useState(false);
@@ -182,7 +185,39 @@ export const CourseCard = ({ route }: { route: any }) => {
         time: '12.12.2022',
       },
     ]
-      
+
+    const teacherAvatar = courseData.teacher?.avatar ? { uri: courseData.teacher?.avatar} : require('../../../../assets/ava.png');   
+    console.log(courseData);
+
+    const renderStarRating = (rating: string) => {
+      const maxStars = 5;
+      const numericRating = parseFloat(rating); 
+      const roundedRating = Math.round(numericRating * maxStars) / maxStars;
+      const stars = [];
+    
+      for (let i = 1; i <= maxStars; i++) {
+        if (i <= roundedRating) {
+          stars.push(
+            <Image key={i} source={require('../../../../assets/icon/star.png')} style={{ width: 14, height: 14 }}
+            />
+          );
+        } else {
+          stars.push(
+            <Image key={i} source={require('../../../../assets/icon/star-0.png')} style={{ width: 14, height: 14, opacity: 0.5 }}
+            />
+          );
+        }
+      }
+    
+      return (
+        <View className='flex-row'>
+          {stars}
+        </View>
+      );
+    };
+
+    const rating = '3.75'
+
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -208,15 +243,11 @@ export const CourseCard = ({ route }: { route: any }) => {
               </TouchableOpacity>
         </View> 
 
-        <Text className='text-white text-2xl font-bold'>Визуал в Instagram</Text>
+        <Text className='text-white text-2xl font-bold'>{courseData.title}</Text>
         <View className='flex-row justify-between items-center w-half mt-1'>
-          <Text>5.0</Text>
+          <Text>{rating}</Text>
           <View className='flex-row'>
-            <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-            <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-            <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-            <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-            <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
+              {renderStarRating(rating)}
           </View>
           <Text>(21)</Text>
         </View>
@@ -279,14 +310,14 @@ export const CourseCard = ({ route }: { route: any }) => {
           </View>
         
           <View className='p-3 bg-custom-Gray rounded-xl flex-row items center -mt-2'>
-            <Image source={require('../../../../assets/ava.png')} className='w-17 h-17 rounded-lg'/>
+            <Image source={teacherAvatar} className='w-17 h-17 rounded-lg'/>
             <View className='justify-center mx-3 space-y-1'>
-              <Text className='text-base text-white'>Адам Адамов</Text>
-              <Text className='text-white'>SMM специалист</Text>
+              <Text className='text-base text-white'>{courseData.teacher?.full_name}</Text>
+              <Text className='text-white'>{courseData.teacher?.bio}</Text>
             </View>
 
             <View className='flex-row top-3 right-3 absolute items-center'>
-                <Text className='mr-2 font-bold text-white'>4.7</Text>
+                <Text className='mr-2 font-bold text-white'>{courseData.teacher?.rate}</Text>
                 <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
             </View>
             <TouchableOpacity className='flex-row bottom-4 right-3 absolute items-center'>
