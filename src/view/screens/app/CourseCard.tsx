@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { useQuery } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
 
+import { CourseData, fetchCourse, Comment, FAQS, Chapter, File } from '../../../data/client/http-client';
 
 interface Item {
   id: string;
@@ -16,13 +18,6 @@ interface DropdownProps {
   content: React.ReactNode;
 }
 
-interface DropdownContentItem {
-  titlePart?: string;
-  srcIcon?: any;
-  about?: string;
-  time?: string;
-  onPlay?: () => void;
-}
 
 const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,10 +26,10 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
   };
 
   return (
-    <View className='rounded-xl bg-custom-Gray p-2 mb-4'>
+    <View className='rounded-xl bg-custom-Gray p-2 mb-3'>
       <View className='flex-row items-center px-2'>
         <Icon src={require('../../../../assets/icon/grid.png')} size={20}/>
-        <Text className='text-white text-base mx-4'>{title}</Text>
+        <Text className='text-white text-base mx-4 w-3/4'>{title}</Text>
         <TouchableOpacity className='absolute right-4' onPress={toggleDropdown}>
            <Icon
               src={isOpen 
@@ -55,10 +50,45 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
   )
 }
 
-export const CourseCard = ({ route }: { route: any }) => {
-  const navigation = useNavigation();
+const DropdownFAQItem: React.FC<FAQS> = ({ title, answer }) => {
+  const [isOpenPart, setIsOpenPart] = useState(false);
 
+  const toggleDropdownPart = () => {
+    setIsOpenPart(!isOpenPart);
+  };
+
+  return (
+    <View className='p-2 border border-gray-500 rounded-xl mt-2 space-y-2'>
+      <View className='flex-row items-center'>
+        <Icon src={require('../../../../assets/icon/help-circle.png')} size={20}/>
+        <Text className='text-white text-base mx-4 w-2/3'>{title}</Text>
+        <TouchableOpacity className='absolute right-4' onPress={toggleDropdownPart}>
+          <Icon
+            src={isOpenPart 
+            ? require('../../../../assets/icon/arrowup.png') 
+            : require('../../../../assets/icon/arrowdown.png')} 
+            size={20}
+          />
+        </TouchableOpacity>
+      </View>
+      <View> 
+        {isOpenPart && (
+          <View className='mt-2'>
+            <Text>{answer}</Text>
+          </View>
+        )}  
+      </View>
+    </View>
+  );
+};
+
+const CourseCard = ({ route }: { route: any }) => {
+  const navigation = useNavigation();
+  
   const courseData = route?.params.data;
+
+  const { data: GetCourse } = useQuery('Course', () => fetchCourse(courseData.id));
+  const course = GetCourse?.data;
 
   const [isPlaying, setIsPlaying] = useState(false);  
   const [showFullText, setShowFullText] = useState(false);
@@ -97,19 +127,18 @@ export const CourseCard = ({ route }: { route: any }) => {
       }
     };
   
-    const renderDropdownContent = (items: DropdownContentItem[]) => {
+    const renderDropdownContent = (items: File[]) => {
       return items.map((item, index) => {
         const [isOpenPart, setIsOpenPart] = useState(false);
   
         const toggleDropdownPart = () => {
           setIsOpenPart(!isOpenPart);
         };
-
       return (
         <View key={index} className='p-2 border border-gray-500 rounded-xl'>
           <View className='flex-row items-center'>
-            <Icon src={item.srcIcon} size={20}/>
-            <Text className='text-white text-base mx-4'>{item.titlePart}</Text>
+            <Icon src={require('../../../../assets/icon/clipboardtext.png')} size={20}/>
+            <Text className='text-white text-base mx-4 w-3/4'>{item.title}</Text>
             <TouchableOpacity className='absolute right-4' onPress={toggleDropdownPart}>
               <Icon
                 src={isOpenPart 
@@ -122,73 +151,23 @@ export const CourseCard = ({ route }: { route: any }) => {
           <View> 
             {isOpenPart && (
               <View className='mt-2'>
-                <Text>{item.about}</Text>
+                <Text>{item.description}</Text>
                 <View className='flex-row justify-between items-center'>
-                  <Text>{item.time}</Text>
-                  <TouchableOpacity onPress={item.onPlay} className='bg-custom-Green rounded-xl p-1'>
+                  <Text>{item.volume}</Text>
+                  <TouchableOpacity onPress={() => console.log} className='bg-custom-Green rounded-xl p-1'>
                     <Text className='text-black font-bold'>Проиграть</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            )}
+            )}  
           </View>
         </View>
         );
       });
     };
 
-    const courseContent = [
-      {
-        title: 'Введение',
-        content: [ ]
-      },
-      {
-        title: 'Основная часть',
-        content: [
-          {
-            titlePart: 'часть 1',
-            srcIcon: require('../../../../assets/icon/videosquare.png'),
-            about: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-            time: '01:47 мин',
-            onPlay: () => {},
-          }, 
-          {
-            titlePart: 'часть 2',
-            srcIcon: require('../../../../assets/icon/clipboardtext.png'),
-            about: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-            time: '01:47 мин',
-            onPlay: () => {},
-          }
-        ]
-      },
-    ]
- 
-    const comment = [
-      {
-        srcIcon: require('../../../../assets/ava.png'),
-        comment: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-        time: '12.12.2022',
-      },
-      {
-        srcIcon: require('../../../../assets/ava.png'),
-        comment: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis ',
-        time: '12.12.2022',
-      },
-      {
-        srcIcon: require('../../../../assets/ava.png'),
-        comment: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-        time: '12.12.2022',
-      },
-      {
-        srcIcon: require('../../../../assets/ava.png'),
-        comment: 'Lorem, ipsum dolor sit amet consectetur',
-        time: '12.12.2022',
-      },
-    ]
-
-    const teacherAvatar = courseData.teacher?.avatar ? { uri: courseData.teacher?.avatar} : require('../../../../assets/ava.png');   
-    console.log(courseData);
-
+    const teacherAvatar = course?.teacher?.avatar ? { uri: course?.teacher?.avatar} : require('../../../../assets/ava.png');   
+    
     const renderStarRating = (rating: string) => {
       const maxStars = 5;
       const numericRating = parseFloat(rating); 
@@ -216,8 +195,6 @@ export const CourseCard = ({ route }: { route: any }) => {
       );
     };
 
-    const rating = '3.75'
-
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -243,23 +220,18 @@ export const CourseCard = ({ route }: { route: any }) => {
               </TouchableOpacity>
         </View> 
 
-        <Text className='text-white text-2xl font-bold'>{courseData.title}</Text>
+        <Text className='text-white text-2xl font-bold'>{course?.title}</Text>
         <View className='flex-row justify-between items-center w-half mt-1'>
-          <Text>{rating}</Text>
+          <Text>{course?.rate}</Text>
           <View className='flex-row'>
-              {renderStarRating(rating)}
+              {renderStarRating(course?.rate)}
           </View>
-          <Text>(21)</Text>
+          <Text>({course?.reviews_count})</Text>
         </View>
         
         <Text
               className="text-white my-2"
-              numberOfLines={showFullText ? undefined : 3}>
-            Самый системный и творческий курс по визуалу в Instagram, который научит видеть кадры повсюду, 
-            транслировать через фото Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda 
-            velit asperiores, delectus quidem ea ratione repellat illum minima, quam recusandae voluptas 
-            eveniet eaque ipsa dolorum quasi expedita praesentium et fugit.
-            </Text>
+              numberOfLines={showFullText ? undefined : 3}>{course?.description}</Text>
             {showFullText ? (
               <TouchableOpacity onPress={toggleTextVisibility}>
                 <Text className="text-blue-500">...less</Text>
@@ -271,13 +243,26 @@ export const CourseCard = ({ route }: { route: any }) => {
             )}
 
           <View className='my-2'>
-              <Text className="text-white text-lg">14 990 Тенге</Text>
-              <FlatList
+            <View className='flex-row'>
+              {course?.price 
+                ? ( <View>
+                  {course?.best_ticket_string
+                    ? (<View className='flex-row'>
+                      <Text className="text-white text-lg mr-10">{course?.best_ticket_string}</Text>
+                      <Text className="text-white text-lg mr-10 line-through">{course?.price_string}</Text>
+                    </View>)
+                    : (<Text className="text-white text-lg mr-10">{course?.price_string}</Text>)
+                  }
+                </View>)
+                : (<Text className="text-white text-lg mr-10">Free</Text>)
+              }
+              </View>
+              {/* <FlatList
                   data={data}
                   renderItem={renderItem}
                   keyExtractor={(item) => item.id}
                   numColumns={1}
-                />
+                /> */}
               <TouchableOpacity onPress={handleBuyNow} className="mt-5 bg-custom-Green rounded-xl items-center py-2">
                   <Text className="font-bold text-black text-base">Купить сейчас</Text>
               </TouchableOpacity >
@@ -302,54 +287,78 @@ export const CourseCard = ({ route }: { route: any }) => {
               <Icon src={require('../../../../assets/icon/dot.png')} size={5}/>
               <Text>12 часов 20 минут</Text>
           </View>
+          
+          {course?.files_chapters && 
+            <View className='py-3'>
+                {course.files_chapters.map((item: Chapter, index: number) =>
+                  <Dropdown key={index} title={item.title} content={renderDropdownContent(item.files)} />
+                )}
+            </View>
+          }
 
-          <View className='py-3'>
-              {courseContent.map((item, index) =>
-                <Dropdown key={index} title={item.title} content={renderDropdownContent(item.content)} />
-              )}
-          </View>
-        
-          <View className='p-3 bg-custom-Gray rounded-xl flex-row items center -mt-2'>
+          <View className='p-3 bg-custom-Gray rounded-xl flex-row items center -mt-2 mb-4'>
             <Image source={teacherAvatar} className='w-17 h-17 rounded-lg'/>
             <View className='justify-center mx-3 space-y-1'>
-              <Text className='text-base text-white'>{courseData.teacher?.full_name}</Text>
-              <Text className='text-white'>{courseData.teacher?.bio}</Text>
+              <Text className='text-base text-white'>{course?.teacher?.full_name}</Text>
+              <Text className='text-white'>{course?.teacher?.bio}</Text>
             </View>
 
             <View className='flex-row top-3 right-3 absolute items-center'>
-                <Text className='mr-2 font-bold text-white'>{courseData.teacher?.rate}</Text>
+                <Text className='mr-2 font-bold text-white'>{course?.teacher?.rate}</Text>
                 <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
             </View>
-            <TouchableOpacity className='flex-row bottom-4 right-3 absolute items-center'>
+            <TouchableOpacity className='flex-row bottom-1 right-3 absolute items-center'>
                 <Text className='mr-2 text-white'>5 курсов</Text>
                 <Icon src={require('../../../../assets/icon/arrow-right.png')} size={24}/>
             </TouchableOpacity>
           </View>
 
-          <View className='mt-4'>
-          {comment.map((item, index) => 
-            (
-            <View key={index} className='my-2'>
-              <View className='flex-row justify-between items-center '>
-                  <View className='flex-row space-x-4'>
-                    <Image source={item.srcIcon} className='w-10 h-10 rounded-lg'/>
-                    <View className='flex-row items-center'>
-                      <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-                      <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-                      <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-                      <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-                      <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
-                    </View>
-                  </View>
-                  <Text className='text-white'>{item.time}</Text>
-              </View>
-              <Text className='text-white py-1'>{item.comment}</Text>
+          <View className='rounded-xl bg-custom-Gray p-2 mb-4'>
+            <View className='flex-row items-center px-2'>
+              <Icon src={require('../../../../assets/icon/messagequestion.png')} size={20}/>
+              <Text className='text-white text-lg font-bold mx-4'>FAQ</Text>
             </View>
-            )
-          )}
+              {course?.faqs && 
+                  course.faqs.map((item: FAQS, index: number) => (
+                    <DropdownFAQItem
+                      key={index}
+                      title={item.title}
+                      answer={item.answer}
+                    />
+                  ))
+              }
           </View>
+
+          {course?.comments && 
+            <View className='mt-4'>
+              {course?.comments.map((item: Comment, index: number) => 
+                (
+                <View key={index} className='my-2'>
+                  <View className='flex-row justify-between items-center '>
+                      <View className='flex-row space-x-4'>
+                        {item.user?.avatar ? (
+                          <Image source={{uri: item.user?.avatar}} className='w-10 h-10 rounded-lg'/>
+                        ): (
+                          <Image source={require('../../../../assets/icon/star-0.png')} className='w-10 h-10 rounded-lg'/>
+                        )}
+                        
+                        <View className='flex-row items-center'>
+                            {renderStarRating(String(item.user?.rate))}
+                        </View>
+                      </View>
+                      <Text className='text-white'>{new Date(item?.create_at * 1000).toLocaleDateString('en-GB')}</Text>
+                  </View>
+                  <Text className='text-white py-1'>{item.comment}</Text>
+                </View>
+                )
+              )}
+            </View>
+
+          }
 
         </ScrollView>
     </SafeAreaView>
   );
 }
+
+export default CourseCard;

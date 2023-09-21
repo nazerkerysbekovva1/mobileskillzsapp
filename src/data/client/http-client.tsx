@@ -201,22 +201,9 @@ export interface CourseData {
     discount_amount?: number;
     active_special_offer?: null | string;
     duration?: number;
-    teacher?: {
-      id: number;
-      full_name: string;
-      role_name: string;
-      bio: string;
-      offline: number;
-      offline_message: null | string;
-      verified: number;
-      rate: string;
-      avatar: string;
-      meeting_status: string;
-      user_group: null | string;
-      address: null | string;
-    };
+    teacher?: Teacher;
     students_count?: number;
-    rate?: string;
+    rate?: string | number;
     rate_type?: {
       content_quality: number;
       instructor_skills: number;
@@ -232,8 +219,141 @@ export interface CourseData {
     progress_percent?: null | string;
     category?: string;
     capacity?: null | string;
+    faqs?: FAQS[];
+    comments?: Comment[];
+    files_chapters?: Chapter[];
+    session_chapters?: Chapter[];
+  }
+
+  export interface Teacher  {
+    id: number;
+    full_name: string;
+    role_name: string;
+    bio: string;
+    offline: number;
+    offline_message: null | string;
+    verified: number;
+    rate: string;
+    avatar: string;
+    meeting_status: string;
+    user_group: null | string;
+    address: null | string;
+  };
+
+  export interface Comment{
+      id?: number;
+      status?: string;
+      comment_user_type?: string;
+      create_at?: number;
+      comment?: string;
+      blog?: null;
+      user?: {
+        id?: number;
+        full_name?: string;
+        role_name?: string;
+        bio?: null;
+        offline?: number;
+        offline_message?: null;
+        verified?: number;
+        rate?: string | number;
+        avatar?: string;
+        meeting_status?: string;
+        user_group?: null;
+        address?: string;
+      };
   }
   export interface CourseQuery{
     rate: string;
     created_at: number,
   }
+
+  export interface FAQS{
+    id?: number;
+    title?: string;
+    answer?: string;
+    order?: number;
+    created_at?: number;
+    ubdated_at?: number | null
+  }
+
+  export interface File {
+    id: number;
+    title: string;
+    auth_has_read: boolean | null;
+    status: string;
+    order: number | null;
+    downloadable: number;
+    accessibility: string;
+    description: string;
+    storage: string;
+    download_link: string;
+    auth_has_access: boolean | null;
+    user_has_access: boolean;
+    file: string;
+    volume: string;
+    file_type: string;
+    is_video: boolean;
+    interactive_type: string | null;
+    interactive_file_name: string | null;
+    interactive_file_path: string | null;
+    created_at: number;
+    updated_at: number;
+  }
+
+export  interface Session {
+    id: number;
+    title: string;
+    auth_has_read: boolean | null;
+    user_has_access: boolean;
+    is_finished: boolean;
+    is_started: boolean;
+    status: string;
+    order: number | null;
+    moderator_secret: string;
+    date: number;
+    duration: number;
+    link: string;
+    join_link: string | null;
+    can_join: boolean;
+    session_api: string;
+    zoom_start_link: string | null;
+    api_secret: string;
+    description: string;
+    created_at: number;
+    updated_at: number;
+    agora_settings: any | null; 
+  }
+  
+export interface Chapter {   //file_chapters and session_chapters
+    id: number;
+    title: string;
+    topics_count: number;
+    duration: string;
+    status: string;
+    order: number | null;
+    type: string | null;
+    created_at: number;
+    textLessons: any[];
+    sessions: Session[]; 
+    files: File[];
+    quizzes: any[]; 
+  }
+
+  function getCourse (id: number) : Promise<Response> {
+    console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.COURSES}/${id}`)
+    return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.COURSES}/${id}`, {
+        method: 'GET',
+        headers : {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'x-api-key': Config.secret
+        },
+    })
+}
+export const fetchCourse = async (id: number) =>{
+    const response = await getCourse(id);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+}

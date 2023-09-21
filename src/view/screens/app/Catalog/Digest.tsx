@@ -29,12 +29,12 @@ type Prop = CourseData & {
   type NavigationProp = StackNavigationProp<RootStackParamList>;
   
 
-const ComponentItem: React.FC<CourseData> = (data) => {
+const ComponentItem: React.FC<Prop> = (data) => {
     const navigation = useNavigation<NavigationProp>();
 
-    console.log('ComponentItem', data);
+    // console.log('ComponentItem', data);
 
-    const handleNavigateToCourseCard = (data: CourseData) => {
+    const handleNavigateToCourseCard = () => {
       navigation.navigate('CourseCard', {
         data,
       });
@@ -48,7 +48,7 @@ const ComponentItem: React.FC<CourseData> = (data) => {
     const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
 
     return(
-        <TouchableOpacity onPress={() => handleNavigateToCourseCard(data)} className='w-64 h-32 mr-4'>
+        <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
             <Image className='w-full h-full rounded-lg' source={imageSource} />
                 <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
                 <Text className='bg-custom-Green px-1 rounded-xl text-black'>{data.type}</Text>
@@ -70,8 +70,6 @@ const ComponentItem: React.FC<CourseData> = (data) => {
 const Component: React.FC<Prop> = (data) => {
   const navigation = useNavigation<NavigationProp>();
 
-  console.log('Component', data);
-
   const handleNavigateToCatalog = (data: CourseData) => {
     navigation.navigate('catalog', {
       data,
@@ -87,7 +85,7 @@ const Component: React.FC<Prop> = (data) => {
             </View>
             <ScrollView horizontal>
              {data.list?.map((item, index) => (
-                <ComponentItem key={index} title={item.title} price_string={item.price_string} image={item.image} type={item.type} category={item.category}/>
+                <ComponentItem key={index} {...item}/>
              ))}
             </ScrollView>
         </View>
@@ -126,11 +124,15 @@ const Digest = () => {
     return bestsellers;
   };
 
-  const getNewestCourses = (data: CourseQuery[]) => {
+  const getNewestCourses = (data: CourseQuery[] | undefined) => {
+    if (!data || data.length === 0) {
+      return []; 
+    }
     const sortedData = data.sort((a, b) => b.created_at - a.created_at);
     const newestCourses = sortedData.slice(0, 3);
     return newestCourses;
   };
+  
 
     const courseList = [
         {
@@ -179,7 +181,7 @@ const Digest = () => {
           ) :  error ? (<Text className='text-xl font-bold text-white'>error</Text> 
           ) : courseList ? (
             courseList.map((item: Prop, index: number) => (
-              <Component key={index} title={item.title} list={item.list} />
+              <Component key={index} {...item}/>
           )) 
           ) : ( <Text className='text-xl font-bold text-white'>Data is not available</Text> 
         )}

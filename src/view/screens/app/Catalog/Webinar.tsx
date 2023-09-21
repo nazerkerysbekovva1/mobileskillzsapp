@@ -8,7 +8,17 @@ import { useQuery } from 'react-query';
 import { fetchData, CourseData } from '../../../../data/client/http-client';
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
+type RootStackParamList = {
+  WebinarCard: {
+    data: CourseData;
+  };
+  Basket: any
+};
+type NavigationProp = StackNavigationProp<RootStackParamList>;
+
 const ComponentItem: React.FC<CourseData> = (data) => {
+  const navigation = useNavigation<NavigationProp>();
+
   const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
 
   const [activeLike, setActiveLike] = useState(data.is_favorite);
@@ -20,8 +30,15 @@ const ComponentItem: React.FC<CourseData> = (data) => {
   const toggleLikeVisibility = () => {
       setActiveLike(!activeLike);        // POST: set 'is_favorite'
   };
+
+  const handleNavigateToWebinarCard = (data: CourseData) => {
+    navigation.navigate('WebinarCard', {
+      data,
+    });
+  };
+
   return(
-      <TouchableOpacity className='w-full h-40 mb-4'>
+      <TouchableOpacity onPress={() => handleNavigateToWebinarCard(data)} className='w-full h-40 mb-4'>
           <Image className='w-full h-full rounded-lg' source={imageSource} />
                   <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
                   <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.type}</Text>
@@ -48,7 +65,6 @@ export const Webinar = () => {
     const webinars =  data?.data.filter((val: any) => val.type === 'webinar');
     return webinars;
   }
-
   return(
     <SafeAreaView className="flex-1 bg-black px-4 pt-2">
          <ScrollView className='pt-2' showsVerticalScrollIndicator={false}>
@@ -59,12 +75,7 @@ export const Webinar = () => {
               getWebinars().map((item: CourseData, index: number) => 
                 <ComponentItem 
                     key={index}
-                    category={item.category} 
-                    title={item.title} 
-                    image={item.image} 
-                    price_string={item.price_string} 
-                    type={item.type}
-                    is_favorite={item.is_favorite}/>
+                    {...item}/>
               ) 
             ) : ( <Text className='text-xl font-bold text-white'>Data is not available</Text> 
         )}

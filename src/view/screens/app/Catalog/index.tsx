@@ -9,7 +9,7 @@ import { Webinar } from '../Catalog/Webinar';
 import { Text } from 'react-native-elements';
 import { Icon } from '../../../../component/Icon';
 import { Catalog } from './Catalog';
-import { CourseCard } from '../CourseCard';
+import  CourseCard from '../CourseCard';
 import { useNavigation } from '@react-navigation/native';
 import { WebinarCard } from '../Webinar/WebinarCard';
 import { WebinarTime } from '../Webinar/WebinarTime';
