@@ -6,7 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
 
-import { CourseData, fetchCourse, Comment, FAQS, Chapter, File } from '../../../data/client/http-client';
+import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session } from '../../../data/client/http-client';
 
 interface Item {
   id: string;
@@ -14,22 +14,29 @@ interface Item {
 }
 
 interface DropdownProps {
-  title: string;
-  content: React.ReactNode;
+  titleContent?: string;
+  content?: React.ReactNode;
+  isOpen: boolean; 
+  setIsOpen: (isOpen: boolean) => void; 
 }
 
+type RootStackParamList = {
+  CourseTime: {
+    data: CourseData;
+  };
+};
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Dropdown: React.FC<DropdownProps> = ({ titleContent, content, isOpen, setIsOpen }) => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
   return (
-    <View className='rounded-xl bg-custom-Gray p-2 mb-3'>
+    <View className='rounded-xl bg-custom-Gray p-2 mb-4'>
       <View className='flex-row items-center px-2'>
         <Icon src={require('../../../../assets/icon/grid.png')} size={20}/>
-        <Text className='text-white text-base mx-4 w-3/4'>{title}</Text>
+        <Text className='text-white text-base mx-4 w-3/4'>{titleContent}</Text>
         <TouchableOpacity className='absolute right-4' onPress={toggleDropdown}>
            <Icon
               src={isOpen 
@@ -50,11 +57,9 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content }) => {
   )
 }
 
-const DropdownFAQItem: React.FC<FAQS> = ({ title, answer }) => {
-  const [isOpenPart, setIsOpenPart] = useState(false);
-
+const DropdownFAQItem: React.FC<FAQS & DropdownProps> = ({ title, answer, isOpen, setIsOpen }) => {
   const toggleDropdownPart = () => {
-    setIsOpenPart(!isOpenPart);
+    setIsOpen(!isOpen);
   };
 
   return (
@@ -64,7 +69,7 @@ const DropdownFAQItem: React.FC<FAQS> = ({ title, answer }) => {
         <Text className='text-white text-base mx-4 w-2/3'>{title}</Text>
         <TouchableOpacity className='absolute right-4' onPress={toggleDropdownPart}>
           <Icon
-            src={isOpenPart 
+            src={isOpen 
             ? require('../../../../assets/icon/arrowup.png') 
             : require('../../../../assets/icon/arrowdown.png')} 
             size={20}
@@ -72,7 +77,7 @@ const DropdownFAQItem: React.FC<FAQS> = ({ title, answer }) => {
         </TouchableOpacity>
       </View>
       <View> 
-        {isOpenPart && (
+        {isOpen && (
           <View className='mt-2'>
             <Text>{answer}</Text>
           </View>
@@ -83,12 +88,26 @@ const DropdownFAQItem: React.FC<FAQS> = ({ title, answer }) => {
 };
 
 const CourseCard = ({ route }: { route: any }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   
-  const courseData = route?.params.data;
+  const Data = route?.params.data;
+  let course: any;
 
-  const { data: GetCourse } = useQuery('Course', () => fetchCourse(courseData.id));
-  const course = GetCourse?.data;
+  if(Data.type === 'course'){
+    const { data: GetCourse } = useQuery('Course', () => fetchCourse(Data.id));
+    course = GetCourse?.data;
+
+  } else if(Data.type === 'webinar'){
+    const { data: GetWebinar } = useQuery('Webinar', () => fetchCourse(Data.id));
+    course = GetWebinar?.data;
+
+  } else{
+    const { data: GetTextLesson } = useQuery('TextLesson', () => fetchCourse(Data.id));
+    course = GetTextLesson?.data;
+
+  }
+  // console.log(course);
+  // console.log(Data.type)
 
   const [isPlaying, setIsPlaying] = useState(false);  
   const [showFullText, setShowFullText] = useState(false);
@@ -119,20 +138,50 @@ const CourseCard = ({ route }: { route: any }) => {
       { id: '2', name: 'Второй тарифный план (15% скидка) \nДля первых 5 студентов до 7 июля, 2023' },
     ];
 
-    const handleBuyNow = () => {
+    const handleBuyNow = (data: CourseData) => {
       if (selectedItem) {
         console.log('Selected Item:', selectedItem);
       } else {
         console.log('No item selected.');
       }
+      navigation.navigate('CourseTime', {
+        data,
+      });
     };
-  
+    
+  const initialDropdownStates = Array(course?.files_chapters.length).fill(false);
+  const [isOpenParts, setIsOpenParts] = useState(initialDropdownStates);
+
+  const initialSessionsStates = Array(course?.session_chapters.length).fill(false);
+  const [isOpenPartsOfSession, setIsOpenPartsOfSession] = useState(initialSessionsStates);
+
+  const [isOpenDropdowns, setIsOpenDropdowns] = useState(Array(course?.files_chapters.length).fill(false));
+  const toggleDropdown = (index: number) => {
+    const newIsOpenDropdowns = [...isOpenDropdowns];
+    newIsOpenDropdowns[index] = !newIsOpenDropdowns[index];
+    setIsOpenDropdowns(newIsOpenDropdowns);
+  };
+
+  const [isOpenFAQs, setIsOpenFAQs] = useState(Array(course?.faqs.length).fill(false));
+  const toggleFAQDropdown = (index: number) => {
+    const newIsOpenFAQs = [...isOpenFAQs];
+    newIsOpenFAQs[index] = !newIsOpenFAQs[index];
+    setIsOpenFAQs(newIsOpenFAQs);
+  };
+
+  const [isOpenSessions, setIsOpenSessions] = useState(Array(course?.session_chapters.length).fill(false));
+  const toggleSessions = (index: number) => {
+    const newIsOpenDropdowns = [...isOpenSessions];
+    newIsOpenDropdowns[index] = !newIsOpenDropdowns[index];
+    setIsOpenSessions(newIsOpenDropdowns);
+  };
+
     const renderDropdownContent = (items: File[]) => {
       return items.map((item, index) => {
-        const [isOpenPart, setIsOpenPart] = useState(false);
-  
         const toggleDropdownPart = () => {
-          setIsOpenPart(!isOpenPart);
+          const newIsOpenParts = [...isOpenParts];
+          newIsOpenParts[index] = !newIsOpenParts[index];
+          setIsOpenParts(newIsOpenParts);
         };
       return (
         <View key={index} className='p-2 border border-gray-500 rounded-xl'>
@@ -141,7 +190,7 @@ const CourseCard = ({ route }: { route: any }) => {
             <Text className='text-white text-base mx-4 w-3/4'>{item.title}</Text>
             <TouchableOpacity className='absolute right-4' onPress={toggleDropdownPart}>
               <Icon
-                src={isOpenPart 
+                src={isOpenParts[index] 
                 ? require('../../../../assets/icon/arrowup.png') 
                 : require('../../../../assets/icon/arrowdown.png')} 
                 size={20} />
@@ -149,7 +198,7 @@ const CourseCard = ({ route }: { route: any }) => {
           </View>
 
           <View> 
-            {isOpenPart && (
+            {isOpenParts[index] && (
               <View className='mt-2'>
                 <Text>{item.description}</Text>
                 <View className='flex-row justify-between items-center'>
@@ -160,6 +209,55 @@ const CourseCard = ({ route }: { route: any }) => {
                 </View>
               </View>
             )}  
+          </View>
+        </View>
+        );
+      });
+    };
+
+    const renderDropdownZoom = (items: Session[]) => {
+      return items.map((item, index) => {
+        const toggleDropdownPart = () => {
+          const newIsOpenParts = [...isOpenPartsOfSession];
+          newIsOpenParts[index] = !newIsOpenParts[index];
+          setIsOpenPartsOfSession(newIsOpenParts);
+        };
+
+        const timeRemaining = (timestamp: number) => {
+          const providedTimeMillis = timestamp * 1000;
+          const currentTimeMillis = Date.now();
+          const timeDifferenceInSeconds = (providedTimeMillis - currentTimeMillis) / 1000;
+        
+          return timeDifferenceInSeconds;
+        }
+      return (
+        <View key={index} className='p-2 border border-gray-500 rounded-xl'>
+          <View className='flex-row items-center space-between'>
+
+            <View className='flex-row space-x-4'>
+              <Icon src={require('../../../../assets/icon/video.png')} size={20}/>
+              <Text className='text-white text-base w-40'>{item.title}</Text>
+            </View> 
+
+            <View className='flex-row space-x-2'>
+              <Text className='text-white'>{item.date}</Text>
+              <TouchableOpacity onPress={toggleDropdownPart}>
+                <Icon
+                  src={isOpenPartsOfSession[index] 
+                  ? require('../../../../assets/icon/arrowup.png') 
+                  : require('../../../../assets/icon/arrowdown.png')} 
+                  size={20} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View> 
+            {isOpenPartsOfSession[index] && (
+              <View className='mt-2'>
+                <Text className='absolute -top-2 right-9 text-white'>{item.date}</Text>
+                <Text className='pt-4'>{item.description}</Text>
+              </View>
+            )}
           </View>
         </View>
         );
@@ -221,12 +319,18 @@ const CourseCard = ({ route }: { route: any }) => {
         </View> 
 
         <Text className='text-white text-2xl font-bold'>{course?.title}</Text>
-        <View className='flex-row justify-between items-center w-half mt-1'>
-          <Text>{course?.rate}</Text>
-          <View className='flex-row'>
-              {renderStarRating(course?.rate)}
+
+        <View className='flex-row justify-between items-center  mt-1'>
+          <View className='flex-row justify-between items-center w-half'>
+            <Text>{course?.rate}</Text>
+            <View className='flex-row'>
+                {renderStarRating(course?.rate)}
+            </View>
+            <Text>({course?.reviews_count})</Text>
           </View>
-          <Text>({course?.reviews_count})</Text>
+
+          {course?.type === 'webinar' && 
+                  <Text className='font-bold text-white'>{new Date(course?.start_date * 1000).toTimeString()}</Text>}
         </View>
         
         <Text
@@ -263,7 +367,7 @@ const CourseCard = ({ route }: { route: any }) => {
                   keyExtractor={(item) => item.id}
                   numColumns={1}
                 /> */}
-              <TouchableOpacity onPress={handleBuyNow} className="mt-5 bg-custom-Green rounded-xl items-center py-2">
+              <TouchableOpacity onPress={() => handleBuyNow(course)} className="mt-5 bg-custom-Green rounded-xl items-center py-2">
                   <Text className="font-bold text-black text-base">Купить сейчас</Text>
               </TouchableOpacity >
 
@@ -279,7 +383,10 @@ const CourseCard = ({ route }: { route: any }) => {
               </View>                
           </View>
 
-          <Text className="text-white text-base">Содержание курса</Text>
+          {course?.type === 'webinar' 
+            ? (<Text className="text-white text-base">Содержание вебинара</Text>)
+            : <Text className="text-white text-base">Содержание курса</Text>
+          }          
           <View className='flex-row items-center space-x-1 my-1'>
               <Text className='mr-2'>5 секций</Text>
               <Icon src={require('../../../../assets/icon/dot.png')} size={5}/>
@@ -289,14 +396,34 @@ const CourseCard = ({ route }: { route: any }) => {
           </View>
           
           {course?.files_chapters && 
-            <View className='py-3'>
+            <View className='pt-3'>
                 {course.files_chapters.map((item: Chapter, index: number) =>
-                  <Dropdown key={index} title={item.title} content={renderDropdownContent(item.files)} />
+                  <Dropdown 
+                    key={index} 
+                    titleContent={item.title} 
+                    content={renderDropdownContent(item.files)} 
+                    isOpen={isOpenDropdowns[index]} 
+                    setIsOpen={() => toggleDropdown(index)} 
+                    />
                 )}
             </View>
           }
 
-          <View className='p-3 bg-custom-Gray rounded-xl flex-row items center -mt-2 mb-4'>
+          {course?.session_chapters && 
+            <View>
+                {course.session_chapters.map((item: Chapter, index: number) =>
+                    <Dropdown 
+                      key={index} 
+                      titleContent={item.title} 
+                      content={renderDropdownZoom(item.sessions)} 
+                      isOpen={isOpenSessions[index]}
+                      setIsOpen={() => toggleSessions(index)}
+                    />
+                )}
+            </View>
+          }
+
+          <View className='p-3 bg-custom-Gray rounded-xl flex-row items center mb-4'>
             <Image source={teacherAvatar} className='w-17 h-17 rounded-lg'/>
             <View className='justify-center mx-3 space-y-1'>
               <Text className='text-base text-white'>{course?.teacher?.full_name}</Text>
@@ -324,6 +451,8 @@ const CourseCard = ({ route }: { route: any }) => {
                       key={index}
                       title={item.title}
                       answer={item.answer}
+                      isOpen={isOpenFAQs[index]} 
+                      setIsOpen={() => toggleFAQDropdown(index)} 
                     />
                   ))
               }

@@ -11,8 +11,7 @@ import { Icon } from '../../../../component/Icon';
 import { Catalog } from './Catalog';
 import  CourseCard from '../CourseCard';
 import { useNavigation } from '@react-navigation/native';
-import { WebinarCard } from '../Webinar/WebinarCard';
-import { WebinarTime } from '../Webinar/WebinarTime';
+import { CourseTime } from '../Webinar/CourseTime';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -66,8 +65,7 @@ const Index = () => {
       <Stack.Screen name="MainCatalog" options={{ headerShown: false }} component={MainCatalog} />
       <Stack.Screen name="catalog" options={{ headerShown: false }} component={Catalog} />
       <Stack.Screen name="CourseCard" options={{ headerShown: false }} component={CourseCard} />
-      <Stack.Screen name="WebinarCard" options={{ headerShown: false }} component={WebinarCard} />
-      <Stack.Screen name="WebinarTime" options={{ headerShown: false }} component={WebinarTime} />
+      <Stack.Screen name="CourseTime" options={{ headerShown: false }} component={CourseTime} />
     </Stack.Navigator>
   )
 };

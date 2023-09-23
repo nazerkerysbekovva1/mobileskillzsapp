@@ -69,19 +69,18 @@ export async function login({ username, password }: LoginData) : Promise<Respons
         password,
     };
     // console.log(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`);
-    const response = await fetch(`${Config.apiUrl}${API_ENDPOINTS.USERS_LOGIN}`, {
+    const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.USERS_LOGIN}`, {
         method: "POST",
         headers : {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
+                    'x-api-key': Config.secret
                   },
         body: JSON.stringify(data),
     })
     if(response.ok){
-        const responseData = await response.json();
-        await AsyncStorage.setItem('user_login','1');
-        await AsyncStorage.setItem('user', JSON.stringify(responseData.user));
-    }
+      console.log('Authentication Success')
+  }
     return response
 }
 
@@ -90,13 +89,13 @@ export async function userLogin(): Promise<boolean> {
     return value === '1';
 }
   
-  export async function userData(): Promise<any[]> {
-    const value = await AsyncStorage.getItem('user');
-    if (!value || value === '') {
-      return [];
-    }
-    return JSON.parse(value);
-}
+//   export async function userData(): Promise<any[]> {
+//     const value = await AsyncStorage.getItem('user');
+//     if (!value || value === '') {
+//       return [];
+//     }
+//     return JSON.parse(value);
+// }
 
 
 export const logout = async() => {

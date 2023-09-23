@@ -6,9 +6,11 @@ import { Icon } from '../../../../component/Icon';
 import { StackNavigationProp } from '@react-navigation/stack';
 
 import { useMutation, useQuery } from 'react-query';
-import { fetchData, CourseData, CourseQuery } from '../../../../data/client/http-client';
+import { fetchData, CourseData, CourseQuery, userLogin } from '../../../../data/client/http-client';
 
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
+
+import { ComponentItem2 } from '../../../../component/Course';
 
 type Prop = CourseData & {
     list?: CourseData[];
@@ -27,45 +29,6 @@ type Prop = CourseData & {
   };
   
   type NavigationProp = StackNavigationProp<RootStackParamList>;
-  
-
-const ComponentItem: React.FC<Prop> = (data) => {
-    const navigation = useNavigation<NavigationProp>();
-
-    // console.log('ComponentItem', data);
-
-    const handleNavigateToCourseCard = () => {
-      navigation.navigate('CourseCard', {
-        data,
-      });
-    };
-
-    const [activeLike, setActiveLike] = useState(false);
-    const toggleLikeVisibility = () => {
-        setActiveLike(!activeLike);
-    };
-
-    const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
-
-    return(
-        <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
-            <Image className='w-full h-full rounded-lg' source={imageSource} />
-                <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
-                <Text className='bg-custom-Green px-1 rounded-xl text-black'>{data.type}</Text>
-                <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
-                    <Icon 
-                        src={
-                            activeLike
-                            ? require('../../../../../assets/icon/like-active.png')
-                            : require('../../../../../assets/icon/like.png')
-                        } 
-                        size={24}/>
-                </TouchableOpacity>
-                <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{data.title}</Text>   
-               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{data.price_string}</Text>
-        </TouchableOpacity>
-    )
-}
 
 const Component: React.FC<Prop> = (data) => {
   const navigation = useNavigation<NavigationProp>();
@@ -85,7 +48,7 @@ const Component: React.FC<Prop> = (data) => {
             </View>
             <ScrollView horizontal>
              {data.list?.map((item, index) => (
-                <ComponentItem key={index} {...item}/>
+                <ComponentItem2 key={index} {...item}/>
              ))}
             </ScrollView>
         </View>
@@ -146,25 +109,6 @@ const Digest = () => {
         {
           title: 'Новое',
           list: getNewestCourses(courses?.data),
-        },
-        {
-          title: 'Курсы со скидкой',
-          list: [
-            {
-              nameCatalog: 'Веб разработка',
-              title: 'Введение в JavaScript ',
-              image: "../../../../../assets/1.jpg",
-              price_string: 'Free',
-              format: 'course',
-            },
-            {
-              nameCatalog: 'Мобильная разработка',
-              title: 'Разработка под iOS',
-              image: "../../../../../assets/2.jpg",
-              price_string: '29 990 KZT',
-              format: 'course',
-            },
-          ]
         },
       ]
       

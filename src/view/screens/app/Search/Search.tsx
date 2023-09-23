@@ -3,41 +3,38 @@ import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, TextInpu
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
+import { ComponentItem as CourseItem, ComponentItem2 } from '../../../../component/Course';
 
+import { useMutation, useQuery } from 'react-query';
+import { fetchData, CourseData, CourseQuery, userLogin } from '../../../../data/client/http-client';
 
-type PropData = {
-  nameCatalog?: string;
-  title?: string;
-  src?: any;
-  price?: string;
-  format?: string;
-  list?: PropData[];
-};
+import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
-type Prop = PropData & {
+type Prop = CourseData & {
+  list?: CourseData[];
   onPress?: () => void;
   onPressCourseCard?: () => void;
-}
+};
 
 type RootStackParamList = {
     catalog: {
-        data: PropData;
-        // dataList: PropData[];
+        data: CourseData;
     };
     CourseCard: {
-        data: PropData;
+        data: CourseData;
     };
 };
 
-type NavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
-  // const imageSource = src ? { uri: src } : require("../../../../../assets/default-image.png");
+const ComponentItem: React.FC<Prop> = (data) => {
   const navigation = useNavigation<NavigationProp>();
+
+  // console.log('ComponentItem', data);
 
   const handleNavigateToCourseCard = () => {
     navigation.navigate('CourseCard', {
-      data: { title, src, price },
+      data,
     });
   };
 
@@ -45,13 +42,14 @@ const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
   const toggleLikeVisibility = () => {
       setActiveLike(!activeLike);
   };
+
+  const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
+
   return(
-      <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4 mb-3'>
-          <Image className='w-full h-full rounded-lg' source={src} />
-              <View className='absolute left-0 flex-row space-x-1 m-2'>
-                  <Text className='bg-custom-Green px-1 rounded-xl text-black'>Web</Text>
-                  <Text className='bg-custom-Green px-1 rounded-xl text-black'>iOS</Text>
-              </View>
+      <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-64 h-32 mr-4'>
+          <Image className='w-full h-full rounded-lg' source={imageSource} />
+              <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
+              <Text className='bg-custom-Green px-1 rounded-xl text-black'>{data.type}</Text>
               <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                   <Icon 
                       src={
@@ -61,42 +59,65 @@ const ComponentItem: React.FC<Prop> = ({title, src, price}) => {
                       } 
                       size={24}/>
               </TouchableOpacity>
-              <Text className='absolute left-0 bottom-0 m-2 text-white text-small'>{title}</Text>   
-             <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{price}</Text>
+              <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{data.title}</Text>  
+              {data.price 
+                ? (<View className='absolute right-0 bottom-0 m-2'>
+                      {data?.best_ticket_string
+                        ? (<View>
+                            <Text className='bg-red-500 px-1 rounded-tl-lg rounded-br-lg text-white mb-3'>{data.discount_percent}% скидка</Text>
+                            <View className='bg-custom-Green rounded-lg items-center'>
+                              <Text className="text-black line-through">{data?.price_string}</Text>
+                              <Text className="text-black font-bold">{data?.best_ticket_string}</Text>
+                            </View>
+                          </View>)
+                        : (<Text className='bg-custom-Green px-1 rounded-lg text-black font-bold'>{data.price_string}</Text>)
+                      }
+                </View>)
+                : (<Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-lg text-black font-bold'>Free</Text>)} 
       </TouchableOpacity>
   )
 }
 
-const Component: React.FC<Prop> = ({ title, list }) => {
-const navigation = useNavigation<NavigationProp>();
+const Component: React.FC<Prop> = (data) => {
+  const navigation = useNavigation<NavigationProp>();
 
-const handleNavigateToCatalog = () => {
-  navigation.navigate('catalog', {
-    data: {title, list},
-  });
-};
-  return(
-      <View className='mb-3'>
-          <View className='flex-row justify-between items-center mb-3'>
-              <Text className='text-xl font-bold text-white'>{title}</Text>
-              <TouchableOpacity onPress={() => handleNavigateToCatalog()}>
-                  <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
-              </TouchableOpacity>
-          </View>
-          <ScrollView horizontal>
-           {list?.map((item, index) => (
-              <ComponentItem key={index} title={item.title} price={item.price} src={item.src} />
-           ))}
-          </ScrollView>
-      </View>
-  )
+  const handleNavigateToCatalog = (data: CourseData) => {
+    navigation.navigate('catalog', {
+      data,
+    });
+  };
+    return(
+        <View className='mb-3'>
+            <View className='flex-row justify-between items-center mb-3'>
+                <Text className='text-xl font-bold text-white'>{data.title}</Text>
+                <TouchableOpacity onPress={() => handleNavigateToCatalog(data)}>
+                    <Icon src={require('../../../../../assets/icon/chevron-right.png')} size={25}/>
+                </TouchableOpacity>
+            </View>
+            <ScrollView horizontal>
+             {data.list?.map((item, index) => (
+                <ComponentItem2 key={index} {...item}/>
+             ))}
+            </ScrollView>
+        </View>
+    )
 }
 
 export const Search = ( ) => {
-  const navigation = useNavigation();
+  const { data: searchData } = useQuery('courses', () => fetchData(API_ENDPOINTS.COURSES));
+
+  // console.log(searchData.data)
+
+  const [selectedSales, setSelectedSales] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
+
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  const navigation = useNavigation<NavigationProp>();
   const [isTyping, setIsTyping] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [list, setList] = useState<PropData[]>([]);  // Initialize an empty list
+  const [list, setList] = useState<CourseData[]>([]);  
 
   const handleTextInputChange = (text: string) => {
     setIsTyping(text.length >= 0);
@@ -106,38 +127,75 @@ export const Search = ( ) => {
 
   const handleSearch = () => {
     console.log('Search text:', searchText);
-    const filteredList: PropData[] = courseCategoryList.flatMap((category) =>
-      category.list.filter((item) =>
-        item.title.toLowerCase().includes(searchText.toLowerCase())
-      ).map((item) => ({
-        nameCatalog: item.nameCatalog,
-        title: item.title,
-        src: item.src,
-        price: item.price,
-        format: item.format,
-      }))
-    );
-    console.log('Filtered list:', filteredList);
-    setList(filteredList);
+    
+    const searchResult = searchData.data.filter((value: CourseData) => 
+              value.title?.toLowerCase().includes(searchText.toLowerCase()) || 
+              value.label?.toLowerCase().includes(searchText.toLowerCase()) || 
+              value.category?.toLowerCase().includes(searchText.toLowerCase())
+              );
+    
+    // console.log('Filtered list:', searchResult);
+    setList(searchResult);
+  }
+
+  const getFormats = (data: CourseData[], format: string) => {
+    const sortedData = data?.filter((value) => value.type === format);
+    return sortedData;
+  };
+  const getFree = (data: CourseData[]) => {
+    const sortedData = data?.filter((value) => value.price == 0);
+    return sortedData;
+  };
+  const getDiscounts = (data: CourseData[]) => {
+    const sortedData = data?.filter((value) => value.best_ticket_string != null);
+    return sortedData;
+  };
+  
+  const applyFilters = (data: CourseData[]) => {
+    let filteredData = data;
+  
+    if (selectedSales.length > 0) {
+      if (selectedSales.includes('Бесплатные')) {
+        filteredData = getFree(filteredData);
+      }
+      if (selectedSales.includes('Скидки')) {
+        filteredData = getDiscounts(filteredData);
+      }
+    }
+
+    if (selectedFormats.length > 0) {
+      if (selectedFormats.includes('Вебинары')) {
+        filteredData = getFormats(filteredData, 'webinar');
+      }
+      if (selectedFormats.includes('Курсы')) {
+        filteredData = getFormats(filteredData, 'course');
+      }
+    }
+  
+    if (selectedCategories.length > 0) {
+      filteredData = filteredData.filter((item: any) =>
+        selectedCategories.includes(item.category)
+      );
+    }
+  
+    return filteredData;
+  };
+
+  const handleBackPress = () => {
+    Keyboard.dismiss();
+    setSelectedSales([]);        
+    setSelectedCategories([]);   
+    setSelectedFormats([]);  
+    setSelectedFilters([]);    
+    setSearchText('');           
+    setList(courseList);         
+    setIsTyping(false);
   };
   
 
-  const handleBackPress = () => {
-    console.log('button back');
-    Keyboard.dismiss();
-    setList(courseCategoryList);
-    setSearchText('');
-    setIsTyping(false);
-  };
-
   const handleDeletePress = () => {
-    console.log('button delete');
     setSearchText('');
   };
-
-  const [selectedSales, setSelectedSales] = useState<string[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
 
   const toggleSales = (item: string) => {
       if (selectedSales.includes(item)) {
@@ -145,6 +203,7 @@ export const Search = ( ) => {
       } else {
         setSelectedSales([...selectedSales, item]);
       }
+      setSelectedFilters([...selectedFilters, item]); 
     };
     
     const toggleCategories = (item: string) => {
@@ -153,6 +212,7 @@ export const Search = ( ) => {
       } else {
         setSelectedCategories([...selectedCategories, item]);
       }
+      setSelectedFilters([...selectedFilters, item]); 
     };
     
     const toggleFormats = (item: string) => {
@@ -161,70 +221,30 @@ export const Search = ( ) => {
       } else {
         setSelectedFormats([...selectedFormats, item]);
       }
+      setSelectedFilters([...selectedFilters, item]); 
     };
 
   const sales = ['Бесплатные', 'Скидки'];
-  const categories = ['Разработка', 'Бизнес', 'Маркетинг', 'Лайфстайл', 'Здоровье и фитнес', 'Дизайн', 'Академия'];
-  const formats = ['Вебинары', 'Курсы', 'Пакет курсов', 'Конспекты'];
+  const categories = ['Development', 'Business', 'Marketing', 'Lifestyle', 'Health & Fitness', 'Design', 'Academics'];
+  const formats = ['Вебинары', 'Курсы'];
 
-  const handleSearchPress = () => {
+  const handleSearchPress = (data: CourseQuery[] | undefined) => {
     console.log('Selected sales:', selectedSales);
     console.log('Selected categories:', selectedCategories);
     console.log('Selected formats:', selectedFormats);
+
+    const filteredData = applyFilters(searchData?.data);
+    setList(filteredData);
+    setIsTyping(true);
+    setSearchText(selectedFilters.join(', '));
   };
 
-  const courseCategoryList = [
+  const { data: featuredCourses } = useQuery('featuredCourses', () => fetchData(API_ENDPOINTS.FEATURED_COURSES));
+
+  const courseList = [
     {
       title: 'Советуем посмотреть',
-      list: [
-        {
-          nameCatalog: 'Веб разработка',
-          title: 'Введение в JavaScript ',
-          src: require("../../../../../assets/1.jpg"),
-          price: 'Free',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под iOS',
-          src: require("../../../../../assets/2.jpg"),
-          price: '29 990 KZT',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под Android ',
-          src: require("../../../../../assets/2.jpg"),
-          price: '29 990 KZT',
-          format: 'webinar',
-        },
-      ]
-    },
-    {
-      title: 'Рекомендации для вас',
-      list: [
-        {
-          nameCatalog: 'Веб разработка',
-          title: 'Введение в JavaScript ',
-          src: require("../../../../../assets/1.jpg"),
-          price: 'Free',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под iOS',
-          src: require("../../../../../assets/2.jpg"),
-          price: '29 990 KZT',
-          format: 'course',
-        },
-        {
-          nameCatalog: 'Мобильная разработка',
-          title: 'Разработка под Android ',
-          src: require("../../../../../assets/3.jpg"),
-          price: '29 990 KZT',
-          format: 'webinar',
-        },
-      ]
+      list: featuredCourses?.data,
     },
   ]
 
@@ -251,7 +271,7 @@ export const Search = ( ) => {
               </View>
               
                 {!isTyping && (
-                  <TouchableOpacity onPress={handleSearchPress}>
+                  <TouchableOpacity onPress={() => handleSearchPress(searchData)}>
                     <Icon src={require('../../../../../assets/icon/search.png')} size={20} color='black' />
                   </TouchableOpacity>
                 )}
@@ -273,13 +293,11 @@ export const Search = ( ) => {
                         </TouchableOpacity >
                     </View> 
                   ) : (
-                    <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView showsVerticalScrollIndicator={false} className='mb-20'>
                       {list.map((item, index) => (
-                        <ComponentItem
+                        <CourseItem
                           key={index}
-                          title={item.title}
-                          price={item.price}
-                          src={item.src}
+                          {...item}
                         />
                 ))}
                     </ScrollView>
@@ -369,7 +387,7 @@ export const Search = ( ) => {
                   })}
                   </View>
 
-                  {courseCategoryList.map((item, index) => (
+                  {courseList.map((item, index) => (
                       <Component 
                         key={index} 
                         title={item.title} 

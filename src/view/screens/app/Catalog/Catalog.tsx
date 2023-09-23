@@ -8,6 +8,8 @@ import { useQuery } from 'react-query';
 import { fetchWebinarsOfCategory, CourseData } from '../../../../data/client/http-client';
 import { CustomModal } from './FilterModal';
 
+import { ComponentItem } from '../../../../component/Course';
+
 type RootStackParamList = {
   CourseCard: {
     data: CourseData;
@@ -15,47 +17,6 @@ type RootStackParamList = {
   Basket: any
 };
 type NavigationProp = StackNavigationProp<RootStackParamList>;
-
-const ComponentItem: React.FC<CourseData> = (data) => {
-  const navigation = useNavigation<NavigationProp>();
-
-  const imageSource = data.image ? { uri: data.image } : require("../../../../../assets/default-image.png");
-
-    const [activeLike, setActiveLike] = useState(data.is_favorite);
-    
-    useEffect(() => {
-        setActiveLike(data.is_favorite);
-    }, [data.is_favorite]);
-
-    const toggleLikeVisibility = () => {
-        setActiveLike(!activeLike);        // POST: set 'is_favorite'
-    };
-
-    const handleNavigateToCourseCard = (data: CourseData) => {
-      navigation.navigate('CourseCard', {
-        data,
-      });
-    };
-
-    return(
-        <TouchableOpacity onPress={() => handleNavigateToCourseCard(data)} className='w-full h-40 mb-4'>
-            <Image className='w-full h-full rounded-lg' source={imageSource} />
-                    <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
-                    <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.type}</Text>
-                <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
-                    <Icon 
-                        src={
-                            activeLike
-                            ? require('../../../../../assets/icon/like-active.png')
-                            : require('../../../../../assets/icon/like.png')
-                        } 
-                        size={24}/>
-                </TouchableOpacity>
-                <Text className='absolute left-0 bottom-0 m-2 text-white text-small font-bold'>{data.title}</Text>   
-               <Text className='absolute right-0 bottom-0 m-2 bg-custom-Green px-1 rounded-xl text-black font-bold'>{data.price_string}</Text>
-        </TouchableOpacity>
-    )
-}
 
 export const Catalog = ({ route }: { route: any }) => {
     const navigation = useNavigation<NavigationProp>();

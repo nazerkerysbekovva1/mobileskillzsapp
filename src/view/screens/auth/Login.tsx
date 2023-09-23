@@ -130,9 +130,13 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
         });
     
         const responseData = await response.json();
-        const userAuthToken = responseData.userAuthToken; 
+        console.log(responseData);
+        const userAuthToken = responseData.data.token; 
+        console.log('token',userAuthToken);
+
         if (userAuthToken) {
           await AsyncStorage.setItem('userAuthToken', userAuthToken);
+          await AsyncStorage.setItem('user_login','1');
           navigation.navigate("App");
         } else {
           console.error('Login error: userAuthToken is missing in the response');

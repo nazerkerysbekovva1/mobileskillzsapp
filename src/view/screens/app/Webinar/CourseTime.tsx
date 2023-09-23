@@ -4,6 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
 
+import { useQuery } from 'react-query';
+import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session } from '../../../../data/client/http-client';
+
 const WebinarStatus = {
   NOT_STARTED: 'not_started',
   STARTED: 'started',
@@ -12,9 +15,10 @@ const WebinarStatus = {
 
 
 interface DropdownProps {
-  title: string;
-  content: React.ReactNode;
-  webinar: React.ReactNode;
+  titleContent?: string;
+  content?: React.ReactNode;
+  isOpen: boolean; 
+  setIsOpen: (isOpen: boolean) => void; 
 }
 
 interface DropdownContentItem {
@@ -26,8 +30,7 @@ interface DropdownContentItem {
   onPlay?: () => void;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ title, content, webinar }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const Dropdown: React.FC<DropdownProps> = ({ titleContent, content, isOpen, setIsOpen }) => {
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -36,7 +39,7 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content, webinar }) => {
     <View className='rounded-xl bg-custom-Gray p-2 mb-4'>
       <View className='flex-row items-center px-2'>
         <Icon src={require('../../../../../assets/icon/grid.png')} size={20}/>
-        <Text className='text-white text-base mx-4'>{title}</Text>
+        <Text className='text-white text-base mx-4'>{titleContent}</Text>
         <TouchableOpacity className='absolute right-4' onPress={toggleDropdown}>
            <Icon
               src={isOpen 
@@ -50,7 +53,6 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content, webinar }) => {
         {isOpen && (
           <View className='mt-2 space-y-2'>
             {content}
-            {webinar}
           </View>
         )}
       </View>
@@ -58,8 +60,27 @@ const Dropdown: React.FC<DropdownProps> = ({ title, content, webinar }) => {
   )
 }
 
-export const WebinarTime = ({ route }: { route: any }) => {
+export const CourseTime = ({ route }: { route: any }) => {
   const navigation = useNavigation();
+
+  const Data = route?.params.data;
+  let course: any;
+
+  // console.log(Data)
+  if(Data.type === 'course'){
+    const { data: GetCourse } = useQuery('Course', () => fetchCourse(Data.id));
+    course = GetCourse?.data;
+
+  } else if(Data.type === 'webinar'){
+    const { data: GetWebinar } = useQuery('Webinar', () => fetchCourse(Data.id));
+    course = GetWebinar?.data;
+
+  } else{
+    const { data: GetTextLesson } = useQuery('TextLesson', () => fetchCourse(Data.id));
+    course = GetTextLesson?.data;
+
+  }
+
   const [webinarStatus, setWebinarStatus] = useState(WebinarStatus.NOT_STARTED);
 
     const handleRecheck = () => {
@@ -71,23 +92,49 @@ export const WebinarTime = ({ route }: { route: any }) => {
       console.log('Login to the webinar');
       setWebinarStatus(WebinarStatus.COMPLETED);
   };
-  
-    const renderDropdownContent = (items: DropdownContentItem[]) => {
-      return items.map((item, index) => {
-        const [isOpenPart, setIsOpenPart] = useState(false);
-  
-        const toggleDropdownPart = () => {
-          setIsOpenPart(!isOpenPart);
-        };
+      
+  const initialDropdownStates = Array(course?.files_chapters.length).fill(false);
+  const [isOpenParts, setIsOpenParts] = useState(initialDropdownStates);
 
+  const initialSessionsStates = Array(course?.session_chapters.length).fill(false);
+  const [isOpenPartsOfSession, setIsOpenPartsOfSession] = useState(initialSessionsStates);
+
+  const [isOpenDropdowns, setIsOpenDropdowns] = useState(Array(course?.files_chapters.length).fill(false));
+  const toggleDropdown = (index: number) => {
+    const newIsOpenDropdowns = [...isOpenDropdowns];
+    newIsOpenDropdowns[index] = !newIsOpenDropdowns[index];
+    setIsOpenDropdowns(newIsOpenDropdowns);
+  };
+
+  const [isOpenFAQs, setIsOpenFAQs] = useState(Array(course?.faqs.length).fill(false));
+  const toggleFAQDropdown = (index: number) => {
+    const newIsOpenFAQs = [...isOpenFAQs];
+    newIsOpenFAQs[index] = !newIsOpenFAQs[index];
+    setIsOpenFAQs(newIsOpenFAQs);
+  };
+
+  const [isOpenSessions, setIsOpenSessions] = useState(Array(course?.session_chapters.length).fill(false));
+  const toggleSessions = (index: number) => {
+    const newIsOpenDropdowns = [...isOpenSessions];
+    newIsOpenDropdowns[index] = !newIsOpenDropdowns[index];
+    setIsOpenSessions(newIsOpenDropdowns);
+  };
+
+    const renderDropdownContent = (items: File[]) => {
+      return items.map((item, index) => {
+        const toggleDropdownPart = () => {
+          const newIsOpenParts = [...isOpenParts];
+          newIsOpenParts[index] = !newIsOpenParts[index];
+          setIsOpenParts(newIsOpenParts);
+        };
       return (
         <View key={index} className='p-2 border border-gray-500 rounded-xl'>
           <View className='flex-row items-center'>
-            <Icon src={item.srcIcon} size={20}/>
-            <Text className='text-white text-base mx-4'>{item.titlePart}</Text>
-            <TouchableOpacity className='absolute right-0' onPress={toggleDropdownPart}>
+            <Icon src={require('../../../../../assets/icon/clipboardtext.png')} size={20}/>
+            <Text className='text-white text-base mx-4 w-3/4'>{item.title}</Text>
+            <TouchableOpacity className='absolute right-4' onPress={toggleDropdownPart}>
               <Icon
-                src={isOpenPart 
+                src={isOpenParts[index] 
                 ? require('../../../../../assets/icon/arrowup.png') 
                 : require('../../../../../assets/icon/arrowdown.png')} 
                 size={20} />
@@ -95,45 +142,52 @@ export const WebinarTime = ({ route }: { route: any }) => {
           </View>
 
           <View> 
-            {isOpenPart && (
+            {isOpenParts[index] && (
               <View className='mt-2'>
-                <Text>{item.about}</Text>
+                <Text>{item.description}</Text>
                 <View className='flex-row justify-between items-center'>
-                  <Text>{item.time}</Text>
-                  <TouchableOpacity onPress={item.onPlay} className='bg-custom-Green rounded-xl p-1'>
+                  <Text>{item.volume}</Text>
+                  <TouchableOpacity onPress={() => console.log} className='bg-custom-Green rounded-xl p-1'>
                     <Text className='text-black font-bold'>Проиграть</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            )}
+            )}  
           </View>
         </View>
         );
       });
     };
 
-    const renderDropdownZoom = (items: DropdownContentItem[]) => {
+    const renderDropdownZoom = (items: Session[]) => {
       return items.map((item, index) => {
-        const [isOpenPart, setIsOpenPart] = useState(false);
-  
         const toggleDropdownPart = () => {
-          setIsOpenPart(!isOpenPart);
+          const newIsOpenParts = [...isOpenPartsOfSession];
+          newIsOpenParts[index] = !newIsOpenParts[index];
+          setIsOpenPartsOfSession(newIsOpenParts);
         };
 
+        const timeRemaining = (timestamp: number) => {
+          const providedTimeMillis = timestamp * 1000;
+          const currentTimeMillis = Date.now();
+          const timeDifferenceInSeconds = (providedTimeMillis - currentTimeMillis) / 1000;
+        
+          return timeDifferenceInSeconds;
+        }
       return (
         <View key={index} className='p-2 border border-gray-500 rounded-xl'>
-          <View className='flex-row items-center justify-between'>
+          <View className='flex-row items-center space-between'>
 
             <View className='flex-row space-x-4'>
-              <Icon src={item.srcIcon} size={20}/>
-              <Text className='text-white text-base mx-4'>{item.titlePart}</Text>
+              <Icon src={require('../../../../../assets/icon/video.png')} size={20}/>
+              <Text className='text-white text-base w-40'>{item.title}</Text>
             </View> 
 
-            <View className='flex-row space-x-4'>
-              <Text className='text-white'>{item.time}</Text>
+            <View className='flex-row space-x-2'>
+              <Text className='text-white'>{item.date}</Text>
               <TouchableOpacity onPress={toggleDropdownPart}>
                 <Icon
-                  src={isOpenPart 
+                  src={isOpenPartsOfSession[index] 
                   ? require('../../../../../assets/icon/arrowup.png') 
                   : require('../../../../../assets/icon/arrowdown.png')} 
                   size={20} />
@@ -142,10 +196,10 @@ export const WebinarTime = ({ route }: { route: any }) => {
           </View>
 
           <View> 
-            {isOpenPart && (
+            {isOpenPartsOfSession[index] && (
               <View className='mt-2'>
-                <Text className='absolute -top-2 right-9 text-white'>{item.timeRemaining}</Text>
-                <Text className='pt-4'>{item.about}</Text>
+                <Text className='absolute -top-2 right-9 text-white'>{item.date}</Text>
+                <Text className='pt-4'>{item.description}</Text>
               </View>
             )}
           </View>
@@ -153,35 +207,6 @@ export const WebinarTime = ({ route }: { route: any }) => {
         );
       });
     };
-
-    const courseContent = [
-      {
-        title: 'Введение',
-        content: [],
-        webinar: [],
-      },
-      {
-        title: 'Основная часть',
-        content: [
-          {
-            titlePart: 'часть 1',
-            srcIcon: require('../../../../../assets/icon/videosquare.png'),
-            about: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-            time: '01:47 мин',
-            onPlay: () => {},
-          }, 
-        ],
-        webinar: [
-          {
-            titlePart: 'Zoom live class',
-            srcIcon: require('../../../../../assets/icon/video.png'),
-            about: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere aperiam veritatis velit cum debitis perferendis reprehenderit voluptates libero, amet ea quo expedita aut dolorem tempore illo, sapiente culpa totam et.',
-            time: '25 июля 19:30',
-            timeRemaining: '30 мин',
-          }
-        ]
-      },
-    ]
 
       
   return (
@@ -220,16 +245,33 @@ export const WebinarTime = ({ route }: { route: any }) => {
           )}
         </View> 
 
-          <View className='py-3'>
-              {courseContent.map((item, index) =>
-                <Dropdown 
-                  key={index} 
-                  title={item.title} 
-                  content={renderDropdownContent(item.content)}
-                  webinar={renderDropdownZoom(item.webinar)} 
-                />
-              )}
-          </View>
+        {course?.files_chapters && 
+            <View className='pt-3'>
+                {course.files_chapters.map((item: Chapter, index: number) =>
+                  <Dropdown 
+                    key={index} 
+                    titleContent={item.title} 
+                    content={renderDropdownContent(item.files)} 
+                    isOpen={isOpenDropdowns[index]} 
+                    setIsOpen={() => toggleDropdown(index)} 
+                    />
+                )}
+            </View>
+          }
+
+          {course?.session_chapters && 
+            <View>
+                {course.session_chapters.map((item: Chapter, index: number) =>
+                    <Dropdown 
+                      key={index} 
+                      titleContent={item.title} 
+                      content={renderDropdownZoom(item.sessions)} 
+                      isOpen={isOpenSessions[index]}
+                      setIsOpen={() => toggleSessions(index)}
+                    />
+                )}
+            </View>
+          }
 
         </ScrollView>
     </SafeAreaView>

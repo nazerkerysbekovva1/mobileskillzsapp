@@ -10,8 +10,7 @@ export const API_ENDPOINTS = {
   COURSES: '/courses',
   WEBINARS: '/webinars',
 
-  NEWEST: 'classes?sort=newest',
-  BESTSELLERS: 'bestsellers',
+ 
 
   USERS_GOOGLE: '/google',
   
