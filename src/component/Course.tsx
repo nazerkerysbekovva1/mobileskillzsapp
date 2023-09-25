@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, Modal, StyleSheet, Alert } from 'react-native';
 import { Icon } from './Icon';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-import { CourseData } from '../data/client/http-client';
-
+import { CourseData, userLogin } from '../data/client/http-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
     CourseCard: {
@@ -32,8 +32,12 @@ export const ComponentItem: React.FC<CourseData> = (data) => {
           setActiveLike(data.is_favorite);
       }, [data.is_favorite]);
   
-      const toggleLikeVisibility = () => {
+      const toggleLikeVisibility = async() => {
+        if(await userLogin()){
           setActiveLike(!activeLike);        // POST: set 'is_favorite'
+        } else{
+          Alert.alert('Message','Please Sign in');
+        }
       };
   
       const handleNavigateToCourseCard = (data: CourseData) => {
@@ -88,9 +92,13 @@ export const ComponentItem2: React.FC<Prop> = (data) => {
     };
 
     const [activeLike, setActiveLike] = useState(false);
-    const toggleLikeVisibility = () => {
-        setActiveLike(!activeLike);
-    };
+    const toggleLikeVisibility = async() => {
+      if(await userLogin()){
+        setActiveLike(!activeLike);        // POST: set 'is_favorite'
+      } else{
+        Alert.alert('Message','Please Sign in');
+      }
+  };
 
     const imageSource = data.image ? { uri: data.image } : require("../../assets/default-image.png");
 

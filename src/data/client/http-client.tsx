@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 // import { useAtom } from 'jotai';
 // import { useQuery, QueryClient } from 'react-query';
-// import { getAuthToken, removeAuthToken } from './token.utils';
 
 import { API_ENDPOINTS } from './endpoints';
 import { Config } from '../../Config';
@@ -355,4 +354,26 @@ export const fetchCourse = async (id: number) =>{
       throw new Error('Network response was not ok');
     }
     return response.json();
+}
+
+async function getMyCourses () : Promise<Response> {
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.MY_COURSES}`)
+  return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.MY_COURSES}`, {
+      method: 'GET',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+  })
+}
+export const fetchMyCourses = async () =>{
+  const response = await getMyCourses();
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
 }

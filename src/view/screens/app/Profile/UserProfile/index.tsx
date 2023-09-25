@@ -90,6 +90,7 @@ const MainProfile = () => {
           const mutation = useMutation(logout, {
             onSuccess: async () => {
               navigation.navigate("AuthStack");
+              AsyncStorage.clear();
             }
           });
       

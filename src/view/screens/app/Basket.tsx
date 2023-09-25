@@ -4,6 +4,8 @@ import { Icon } from '../../../component/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
+import { userLogin } from '../../../data/client/http-client';
+
 type PropData = {
     nameCatalog?: string;
     title?: string;
@@ -19,24 +21,22 @@ type PropData = {
     onPressCourseCard?: () => void;
   }
   
-  type RootStackParamList = {
-      catalog: {
-          data: PropData;
-          // dataList: PropData[];
-      };
-      CourseCard: {
-          data: PropData;
-      };
-  };
-  
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'catalog'>;
-
   
 export const Basket = () => {
   const navigation = useNavigation();
 
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [totalCourses, setTotalCourses] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const loggedIn = await userLogin();
+      setIsLoggedIn(loggedIn);
+    };
+
+    checkLoginStatus();
+  }, []);
 
   const Notif = () => {
     
@@ -62,6 +62,7 @@ export const Basket = () => {
   const Item: React.FC<Prop & { onPressDelete: () => void }> = ({title, price, src, author, onPressDelete }) => {
     return(
         <View className='py-3'>
+            {/* notification */}
             <View className='flex-row items-center justify-between'>
                 <TouchableOpacity>
                     <Image source={src} className='w-18 h-18 rounded-lg'/>
@@ -75,6 +76,8 @@ export const Basket = () => {
                     </View>
                 </View>
             </View>
+            {/* notification */}
+
             <View className='ml-auto' style={{width: '75%'}}>
                 <View className='flex-row justify-between items-center mt-1'>
                     <Text className='text-white font-bold text-3xl'>{price}</Text>
@@ -132,32 +135,47 @@ export const Basket = () => {
           <Text className='text-white text-lg font-bold'>Корзина</Text>
         </View>
         
-        {courses.length <= 0 
-            ? ( <View className='justify-between items-center' style={{height: '95%'}}>
-                <View className='items-center justify-center' style={{height: '90%'}}>
-                    <Icon src={require('../../../../assets/icon/shopping.png')} size={30}/>
-                    <Text className='text-white font-bold text-base mt-3'>Добавить курсы</Text>
-                    <Text className='text-base'>Ваша корзина пуста</Text>
-                </View>
-                <TouchableOpacity onPress={() => navigation.navigate('Category')} className='bg-custom-Green items-center py-3 w-full'>
-                    <Text className='text-black font-bold text-lg'>Посмотреть курсы</Text>
-                </TouchableOpacity>
-            </View> ) 
-            : ( <ScrollView showsVerticalScrollIndicator={false}>
-                    <Notif />
-                    <Text className='text-white text-2xl my-3'>{totalCourses} предмета</Text>
-                    {courses.map((item, index) => 
-                        <Item 
-                            key={index} 
-                            title={item.title} 
-                            src={item.src} 
-                            author={item.author} 
-                            price={item.price}
-                            onPressDelete={() => handleDeleteCourse(index)}
-                        />
-                    )}
-                </ScrollView> )
-        }
+      {isLoggedIn ? (
+        <View>
+          {courses.length <= 0 
+              ? ( <View className='justify-between items-center' style={{height: '95%'}}>
+                  <View className='items-center justify-center' style={{height: '90%'}}>
+                      <Icon src={require('../../../../assets/icon/shopping.png')} size={30}/>
+                      <Text className='text-white font-bold text-base mt-3'>Добавить курсы</Text>
+                      <Text className='text-base'>Ваша корзина пуста</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => navigation.navigate('Category')} className='bg-custom-Green items-center py-3 w-full'>
+                      <Text className='text-black font-bold text-lg'>Посмотреть курсы</Text>
+                  </TouchableOpacity>
+              </View> ) 
+              : ( <ScrollView showsVerticalScrollIndicator={false}>
+                      <Notif />
+                      <Text className='text-white text-2xl my-3'>{totalCourses} предмета</Text>
+                      {courses.map((item, index) => 
+                          <Item 
+                              key={index} 
+                              title={item.title} 
+                              src={item.src} 
+                              author={item.author} 
+                              price={item.price}
+                              onPressDelete={() => handleDeleteCourse(index)}
+                          />
+                      )}
+                  </ScrollView> )
+          }
+        </View>
+        ) : (
+          <View className='justify-between items-center' style={{height: '95%'}}>
+            <View className='items-center justify-center' style={{height: '90%'}}>
+              <Icon src={require('../../../../assets/icon/shopping.png')} size={30}/>
+              <Text className='text-white font-bold text-base mt-3'>Добавить курсы</Text>
+              <Text className='text-base'>PLEASE SIGN IN</Text>
+            </View>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} className='bg-custom-Green items-center py-3 w-full'>
+              <Text className='text-black font-bold text-lg'>Sign in</Text>
+            </TouchableOpacity>
+          </View>
+        )}
     </SafeAreaView>
   );
 }

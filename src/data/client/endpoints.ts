@@ -10,6 +10,9 @@ export const API_ENDPOINTS = {
   COURSES: '/courses',
   WEBINARS: '/webinars',
 
+  //user
+  MY_COURSES: '/panel/webinars/purchases',
+
  
 
   USERS_GOOGLE: '/google',
@@ -21,6 +24,7 @@ export const API_ENDPOINTS = {
     COURSES_QUESTIONS: '/questions',
     COURSES_FEEDBACK: '/feedbacks',
     TAGS: '/tags',
+    USER: '/user',
     TYPES: '/types',
     SHOPS: '/shops',
     TOP_SHOPS: '/top-shops',
@@ -28,7 +32,6 @@ export const API_ENDPOINTS = {
     ORDERS_CHECKOUT_VERIFY: 'orders/checkout/verify',
     ORDERS_DOWNLOADS: '/downloads',
     GENERATE_DOWNLOADABLE_PRODUCT_LINK: '/downloads/digital-file',
-    USERS: '/users',
     USERS_ME: '/me',
     USERS_VERIFY_FORGOT_PASSWORD_TOKEN: '/verify-forget-password-token',
     USERS_RESET_PASSWORD: '/reset-password',
@@ -36,7 +39,7 @@ export const API_ENDPOINTS = {
     USERS_WISHLIST: '/my-wishlists',
     WISHLIST: '/wishlists',
     USERS_WISHLIST_TOGGLE: '/wishlists/toggle',
-    MY_COURSES: '/my-courses',
+    
     MY_QUESTIONS: '/my-questions',
     SETTINGS: '/settings',
     SETTINGS_CONTACT_US: '/contact-us',
