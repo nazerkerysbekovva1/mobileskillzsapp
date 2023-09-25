@@ -2,51 +2,123 @@ import React, { useState } from 'react';
 import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { Icon } from '../../../../component/Icon';
 
+import { CourseData } from '../../../../data/client/http-client';
+
 type ModalProps = {
     modalVisible: boolean;
     closeModal: () => void;
-    applyFilter: () => void;
-    
+    searchData: CourseData[];
+    setIsFiltering: any,
+    setList: any,
   };
 export  const CustomModal: React.FC<ModalProps> = ({
     modalVisible,
     closeModal,
-    applyFilter,
+    searchData,
+    setIsFiltering,
+    setList,
   }) => {
+
+
+    const [selectedSales, setSelectedSales] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   
-     const [selectedSales, setSelectedSales] = useState<string[]>([]);
-      const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-      const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  
-  
-      const toggleSales = (item: string) => {
-          if (selectedSales.includes(item)) {
-            setSelectedSales(selectedSales.filter((selectedItem) => selectedItem !== item));
-          } else {
-            setSelectedSales([...selectedSales, item]);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+      const getFormats = (data: CourseData[], format: string) => {
+        const sortedData = data?.filter((value) => value.type === format);
+        return sortedData;
+      };
+      const getFree = (data: CourseData[]) => {
+        const sortedData = data?.filter((value) => value.price == 0);
+        return sortedData;
+      };
+      const getDiscounts = (data: CourseData[]) => {
+        const sortedData = data?.filter((value) => value.best_ticket_string != null);
+        return sortedData;
+      };
+      
+      const applyFilters = (data: CourseData[]) => {
+        let filteredData = data;
+      
+        if (selectedSales.length > 0) {
+          if (selectedSales.includes('Бесплатные')) {
+            filteredData = getFree(filteredData);
           }
-        };
-        
-        const toggleCategories = (item: string) => {
-          if (selectedCategories.includes(item)) {
-            setSelectedCategories(selectedCategories.filter((selectedItem) => selectedItem !== item));
-          } else {
-            setSelectedCategories([...selectedCategories, item]);
+          if (selectedSales.includes('Скидки')) {
+            filteredData = getDiscounts(filteredData);
           }
-        };
-        
-        const toggleFormats = (item: string) => {
-          if (selectedFormats.includes(item)) {
-            setSelectedFormats(selectedFormats.filter((selectedItem) => selectedItem !== item));
-          } else {
-            setSelectedFormats([...selectedFormats, item]);
-          }
-        };
+        }
     
+        if (selectedFormats.length > 0) {
+          if (selectedFormats.includes('Вебинары')) {
+            filteredData = getFormats(filteredData, 'webinar');
+          }
+          if (selectedFormats.includes('Курсы')) {
+            filteredData = getFormats(filteredData, 'course');
+          }
+        }
+      
+        if (selectedCategories.length > 0) {
+          filteredData = filteredData.filter((item: any) =>
+            selectedCategories.includes(item.category)
+          );
+        }
+      
+        return filteredData;
+      };
+      const toggleSales = (item: string) => {
+        if (selectedSales.includes(item)) {
+          setSelectedSales(selectedSales.filter((selectedItem) => selectedItem !== item));
+        } else {
+          setSelectedSales([...selectedSales, item]);
+        }
+        setSelectedFilters([...selectedFilters, item]); 
+      };
+      
+      const toggleCategories = (item: string) => {
+        if (selectedCategories.includes(item)) {
+          setSelectedCategories(selectedCategories.filter((selectedItem) => selectedItem !== item));
+        } else {
+          setSelectedCategories([...selectedCategories, item]);
+        }
+        setSelectedFilters([...selectedFilters, item]); 
+      };
+      
+      const toggleFormats = (item: string) => {
+        if (selectedFormats.includes(item)) {
+          setSelectedFormats(selectedFormats.filter((selectedItem) => selectedItem !== item));
+        } else {
+          setSelectedFormats([...selectedFormats, item]);
+        }
+        setSelectedFilters([...selectedFilters, item]); 
+      };
+    
+    const applyFilterButton = (searchData: CourseData[]) => {
+        console.log('Selected sales:', selectedSales);
+        console.log('Selected categories:', selectedCategories);
+        console.log('Selected formats:', selectedFormats);
+
+        const filteredData = applyFilters(searchData);
+        setList(filteredData);
+        setIsFiltering(true);
+        closeModal();
+    };
+
+    const resetFilter = () => {
+        setSelectedSales([]);        
+        setSelectedCategories([]);   
+        setSelectedFormats([]);  
+        setSelectedFilters([]);    
+        setList([]);         
+        setIsFiltering(false);
+    }
+
     const sales = ['Бесплатные', 'Скидки'];
-    const categories = ['Разработка', 'Бизнес', 'Маркетинг', 'Лайфстайл', 'Здоровье и фитнес', 'Дизайн', 'Академия'];
-    const formats = ['Вебинары', 'Курсы', 'Пакет курсов', 'Конспекты'];
-  
+    const categories = ['Development', 'Business', 'Marketing', 'Lifestyle', 'Health & Fitness', 'Design', 'Academics'];
+    const formats = ['Вебинары', 'Курсы'];
+
     return (
       <Modal
         visible={modalVisible}
@@ -152,11 +224,11 @@ export  const CustomModal: React.FC<ModalProps> = ({
                   </ScrollView>
   
                   <View className='mt-auto mb-3 space-y-3'>
-                      <TouchableOpacity onPress={applyFilter} className="mt-5 bg-custom-Green rounded-md items-center py-2">
+                      <TouchableOpacity onPress={() => applyFilterButton(searchData)} className="mt-5 bg-custom-Green rounded-md items-center py-2">
                           <Text className="font-bold text-black">Применить фильтры</Text>
                       </TouchableOpacity >
   
-                      <TouchableOpacity onPress={applyFilter}>
+                      <TouchableOpacity onPress={resetFilter}>
                               <Text className="font-bold text-black text-center">Сбросить все</Text>
                       </TouchableOpacity>
                   </View>
