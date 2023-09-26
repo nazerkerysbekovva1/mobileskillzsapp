@@ -7,7 +7,7 @@ import { Alert } from 'react-native';
 import { API_ENDPOINTS } from './endpoints';
 import { Config } from '../../Config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useQuery, useMutation } from 'react-query';
+import { extract } from '../../component/Extract';
 
 
 
@@ -87,15 +87,6 @@ export async function userLogin(): Promise<boolean> {
     const value = await AsyncStorage.getItem('user_login');
     return value === '1';
 }
-  
-//   export async function userData(): Promise<any[]> {
-//     const value = await AsyncStorage.getItem('user');
-//     if (!value || value === '') {
-//       return [];
-//     }
-//     return JSON.parse(value);
-// }
-
 
 export const logout = async() => {
     const userAuthToken = await AsyncStorage.getItem('userAuthToken');
@@ -128,7 +119,7 @@ export function forgotPassword({username}: EmailOrPhoneData) : Promise<Response>
 
 
 function getData (endpoint: string) : Promise<Response> {
-    // console.log(`${Config.apiUrl}/api/development${endpoint}`);
+    console.log(`${Config.apiUrl}/api/development${endpoint}`);
     return fetch(`${Config.apiUrl}/api/development${endpoint}`, {
         method: 'GET',
         headers : {
@@ -143,7 +134,10 @@ export const fetchData = async (endpoint: string) =>{
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    return response.json();
+
+    const responseText = await response.text();
+    const responseJSON = extract(responseText);
+    return JSON.parse(responseJSON);
 }
 
 function getWebinarsOfCategory (id: number) : Promise<Response> {
@@ -162,7 +156,9 @@ export const fetchWebinarsOfCategory = async (id: number) =>{
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    return response.json();
+    const responseText = await response.text();
+    const responseJSON = extract(responseText);
+    return JSON.parse(responseJSON);
 }
 
 
@@ -353,14 +349,16 @@ export const fetchCourse = async (id: number) =>{
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-    return response.json();
+    const responseText = await response.text();
+    const responseJSON = extract(responseText);
+    return JSON.parse(responseJSON);
 }
 
-async function getMyCourses () : Promise<Response> {
+async function getUserData(endpoint: string) : Promise<Response> {
   const userAuthToken = await AsyncStorage.getItem('userAuthToken');
 
-  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.MY_COURSES}`)
-  return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.MY_COURSES}`, {
+  console.log(`${Config.apiUrl}/api/development${endpoint}`)
+  return fetch(`${Config.apiUrl}/api/development${endpoint}`, {
       method: 'GET',
       headers : {
           'Accept': 'application/json',
@@ -370,10 +368,96 @@ async function getMyCourses () : Promise<Response> {
       },
   })
 }
-export const fetchMyCourses = async () =>{
-  const response = await getMyCourses();
+export const fetchUserData = async (endpoint: string) =>{
+  const response = await getUserData(endpoint);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
-  return response.json();
+  const responseText = await response.text();
+  const responseJSON = extract(responseText);
+  return JSON.parse(responseJSON);
+}
+
+
+export interface UserData {
+  id: number;
+  full_name: string;
+  role_name: string;
+  bio: string | null;
+  offline: number;
+  offline_message: string | null;
+  verified: number;
+  rate: number;
+  avatar: string;
+  meeting_status: string;
+  user_group: string | null;
+  address: string | null;
+  status: string;
+  email: string;
+  mobile: string;
+  language: string | null;
+  newsletter: boolean;
+  public_message: number;
+  active_subscription: string | null;
+  headline: string | null;
+  courses_count: number;
+  reviews_count: number;
+  appointments_count: number;
+  students_count: number;
+  followers_count: number;
+  following_count: number;
+  badges: Badge[];
+  students: [];
+  followers: [];
+  following: [];
+  auth_user_is_follower: boolean;
+  referral: string | null;
+  education: any[]; 
+  experience: any[]; 
+  occupations: any[]; 
+  about: string | null;
+  webinars: [];
+  meeting: any; 
+  organization_teachers: any[]; 
+  country_id: number | null;
+  province_id: number | null;
+  city_id: number | null;
+  district_id: number | null;
+  account_type: string | null;
+  iban: string | null;
+  account_id: string | null;
+  identity_scan: string | null;
+  certificate: string | null;
+}
+
+export interface Badge {
+  id?: number;
+  title?: string;
+  type?: string;
+  condition?: string;
+  image?: string;
+  locale?: string;
+  description?: string;
+  created_at?: number;
+}
+
+async function getUserProfile(id: number) : Promise<Response> {
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.PROFILE}`)
+  return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.PROFILE}`, {
+      method: 'GET',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+      },
+  })
+}
+export const fetchUserProfile = async (id: number) =>{
+  const response = await getUserProfile(id);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const responseText = await response.text();
+  const responseJSON = extract(responseText);
+  return JSON.parse(responseJSON);
 }

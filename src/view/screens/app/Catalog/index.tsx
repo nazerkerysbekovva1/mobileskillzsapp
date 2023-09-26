@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
@@ -13,16 +13,36 @@ import  CourseCard from '../CourseCard';
 import { useNavigation } from '@react-navigation/native';
 import { CourseTime } from '../Webinar/CourseTime';
 
+import { userLogin, fetchUserData } from '../../../../data/client/http-client';
+import { useQuery } from 'react-query';
+import { API_ENDPOINTS } from '../../../../data/client/endpoints';
+
 const Tab = createMaterialTopTabNavigator();
 
 const MainCatalog = () => {
   const navigation = useNavigation();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+        const loggedIn = await userLogin();
+        setIsLoggedIn(loggedIn);
+        };
+
+        checkLoginStatus();
+    }, []);
+
+    let username = 'NewUser'
+    if(isLoggedIn){
+      const {data} = useQuery('user', () => fetchUserData(API_ENDPOINTS.PROFILE_SETTINGS))
+      username = data?.data.user.full_name
+    }
+
     return(
         <SafeAreaView className='flex-1 bg-black items-center pt-8 px-4'>
           <View className='w-full flex-row justify-between'>
               <Text className='text-custom-Green font-bold text-lg'>
-                Hello, <Text className='text-white font-bold'>NewUser</Text>
+                Hello, <Text className='text-white font-bold'>{username}</Text>
               </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Basket')}>
                   <Icon src={require('../../../../../assets/icon/shopping.png')} size={24}/>

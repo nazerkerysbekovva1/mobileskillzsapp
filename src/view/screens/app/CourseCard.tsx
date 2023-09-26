@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
-
+import { renderStarRating } from '../../../component/ratingStar';
 import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session, userLogin } from '../../../data/client/http-client';
 import { Alert } from 'react-native';
 
@@ -25,6 +25,9 @@ type RootStackParamList = {
   CourseTime: {
     data: CourseData;
   };
+  MentorProfile: {
+    id: number;
+  }
 };
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
@@ -80,7 +83,7 @@ const DropdownFAQItem: React.FC<FAQS & DropdownProps> = ({ title, answer, isOpen
       <View> 
         {isOpen && (
           <View className='mt-2'>
-            <Text>{answer}</Text>
+            <Text className='text-white '>{answer}</Text>
           </View>
         )}  
       </View>
@@ -258,7 +261,7 @@ const CourseCard = ({ route }: { route: any }) => {
             {isOpenPartsOfSession[index] && (
               <View className='mt-2'>
                 <Text className='absolute -top-2 right-9 text-white'>{item.date}</Text>
-                <Text className='pt-4'>{item.description}</Text>
+                <Text className='pt-4 text-white '>{item.description}</Text>
               </View>
             )}
           </View>
@@ -268,33 +271,6 @@ const CourseCard = ({ route }: { route: any }) => {
     };
 
     const teacherAvatar = course?.teacher?.avatar ? { uri: course?.teacher?.avatar} : require('../../../../assets/ava.png');   
-    
-    const renderStarRating = (rating: string) => {
-      const maxStars = 5;
-      const numericRating = parseFloat(rating); 
-      const roundedRating = Math.round(numericRating * maxStars) / maxStars;
-      const stars = [];
-    
-      for (let i = 1; i <= maxStars; i++) {
-        if (i <= roundedRating) {
-          stars.push(
-            <Image key={i} source={require('../../../../assets/icon/star.png')} style={{ width: 14, height: 14 }}
-            />
-          );
-        } else {
-          stars.push(
-            <Image key={i} source={require('../../../../assets/icon/star-0.png')} style={{ width: 14, height: 14, opacity: 0.5 }}
-            />
-          );
-        }
-      }
-    
-      return (
-        <View className='flex-row'>
-          {stars}
-        </View>
-      );
-    };
 
     const [activeLike, setActiveLike] = useState(course?.is_favorite);
     const [activeBasket, setActiveBasket] = useState(false);
@@ -316,6 +292,12 @@ const CourseCard = ({ route }: { route: any }) => {
         } else{
           Alert.alert('Message','Please Sign in');
         }
+      };
+
+      const handleNavigateToMentor = (id: number) => {
+        navigation.navigate('MentorProfile', {
+          id,
+        });
       };
 
   return (
@@ -473,7 +455,7 @@ const CourseCard = ({ route }: { route: any }) => {
                 <Text className='mr-2 font-bold text-white'>{course?.teacher?.rate}</Text>
                 <Icon src={require('../../../../assets/icon/star.png')} size={14}/>
             </View>
-            <TouchableOpacity className='flex-row bottom-1 right-3 absolute items-center'>
+            <TouchableOpacity onPress={() => handleNavigateToMentor(course?.teacher.id)} className='flex-row bottom-1 right-3 absolute items-center'>
                 <Text className='mr-2 text-white'>5 курсов</Text>
                 <Icon src={require('../../../../assets/icon/arrow-right.png')} size={24}/>
             </TouchableOpacity>

@@ -5,9 +5,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
 import Slider from '@react-native-community/slider';
 
-import { fetchMyCourses, CourseData, userLogin } from '../../../../data/client/http-client';
+import { fetchUserData, CourseData, userLogin } from '../../../../data/client/http-client';
 import { useQuery } from 'react-query';
 import { Alert } from 'react-native';
+import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
 type Prop = CourseData & {
   valueSlider?: number; 
@@ -80,7 +81,7 @@ const ComponentItem: React.FC<Prop> = (data) => {
 }
 
 export const Courses = () => {
-  const { data } = useQuery('myCourses', fetchMyCourses)
+  const { data } = useQuery('myCourses', () => fetchUserData(API_ENDPOINTS.MY_COURSES))
   console.log('user courses', data?.data)
 
   const course = [];

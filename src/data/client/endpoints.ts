@@ -9,10 +9,16 @@ export const API_ENDPOINTS = {
   CATEGORIES: '/categories',
   COURSES: '/courses',
   WEBINARS: '/webinars',
+  PURCHASES: 'purchases',
+  PANEL: 'panel',
+  SETTINGS: '/settings',
 
-  //user
+
+  //
   MY_COURSES: '/panel/webinars/purchases',
-
+  PROFILE_SETTINGS: '/panel/profile-setting',
+  USERS: '/users',
+  PROFILE: '/profile',
  
 
   USERS_GOOGLE: '/google',
@@ -24,7 +30,6 @@ export const API_ENDPOINTS = {
     COURSES_QUESTIONS: '/questions',
     COURSES_FEEDBACK: '/feedbacks',
     TAGS: '/tags',
-    USER: '/user',
     TYPES: '/types',
     SHOPS: '/shops',
     TOP_SHOPS: '/top-shops',
@@ -41,7 +46,6 @@ export const API_ENDPOINTS = {
     USERS_WISHLIST_TOGGLE: '/wishlists/toggle',
     
     MY_QUESTIONS: '/my-questions',
-    SETTINGS: '/settings',
     SETTINGS_CONTACT_US: '/contact-us',
     UPLOADS: '/attachments',
     FOLLOW_SHOP: 'follow-shop',

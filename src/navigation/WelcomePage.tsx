@@ -20,7 +20,7 @@ export const WelcomePage: React.FC<NavigationProps> = ({ navigation }) => {
 							<TouchableOpacity onPress={()=>navigation.navigate('AuthStack')} className="rounded-lg bg-black items-center py-3">
 								<Text className="text-white">Войти в аккаунт</Text>
 							</TouchableOpacity>
-							<TouchableOpacity onPress={()=>navigation.navigate('WelcomeStack')} className="items-center">
+							<TouchableOpacity onPress={()=>navigation.navigate('App')} className="items-center">
 								<Text>Продолжить без входа</Text>
 							</TouchableOpacity>
 						</View>

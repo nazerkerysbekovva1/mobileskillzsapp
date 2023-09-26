@@ -205,7 +205,7 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
                     <View className='flex items-center'>
                         <Image source={require('../../../../assets/icon/icon-white.png')} className="w-64 h-10 mt-16 "/>
                     </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('WelcomePage')} className="absolute top-10 right-0">
+                    <TouchableOpacity onPress={() => navigation.goBack()} className="absolute top-10 right-0">
                         <Image source={require('../../../../assets/icon/x.png')} className="w-6 h-6"/>
                     </TouchableOpacity>
 

@@ -169,9 +169,9 @@ export const Basket = () => {
             <View className='items-center justify-center' style={{height: '90%'}}>
               <Icon src={require('../../../../assets/icon/shopping.png')} size={30}/>
               <Text className='text-white font-bold text-base mt-3'>Добавить курсы</Text>
-              <Text className='text-base'>PLEASE SIGN IN</Text>
+              <Text className='text-base text-white'>PLEASE SIGN IN</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')} className='bg-custom-Green items-center py-3 w-full'>
+            <TouchableOpacity onPress={() => navigation.navigate('AuthStack')} className='bg-custom-Green items-center py-3 w-full'>
               <Text className='text-black font-bold text-lg'>Sign in</Text>
             </TouchableOpacity>
           </View>

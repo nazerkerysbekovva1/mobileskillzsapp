@@ -4,7 +4,7 @@ import { Icon } from '../../../../../component/Icon';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-export const Profile = () => {
+export const EditProfile = () => {
   const navigation = useNavigation();
 
   return (
