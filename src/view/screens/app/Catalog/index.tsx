@@ -11,7 +11,6 @@ import { Icon } from '../../../../component/Icon';
 import { Catalog } from './Catalog';
 import  CourseCard from '../CourseCard';
 import { useNavigation } from '@react-navigation/native';
-import { CourseTime } from '../Webinar/CourseTime';
 
 import { userLogin, fetchUserData } from '../../../../data/client/http-client';
 import { useQuery } from 'react-query';
@@ -31,12 +30,10 @@ const MainCatalog = () => {
 
         checkLoginStatus();
     }, []);
-
-    let username = 'NewUser'
-    if(isLoggedIn){
-      const {data} = useQuery('user', () => fetchUserData(API_ENDPOINTS.PROFILE_SETTINGS))
-      username = data?.data.user.full_name
-    }
+    
+    const { data } = useQuery('user', () =>
+      isLoggedIn ? fetchUserData(API_ENDPOINTS.PROFILE_SETTINGS) : null);
+    const username = data?.data.user ? data?.data.user.full_name : 'NewUser'
 
     return(
         <SafeAreaView className='flex-1 bg-black items-center pt-8 px-4'>
@@ -85,7 +82,6 @@ const Index = () => {
       <Stack.Screen name="MainCatalog" options={{ headerShown: false }} component={MainCatalog} />
       <Stack.Screen name="catalog" options={{ headerShown: false }} component={Catalog} />
       <Stack.Screen name="CourseCard" options={{ headerShown: false }} component={CourseCard} />
-      <Stack.Screen name="CourseTime" options={{ headerShown: false }} component={CourseTime} />
     </Stack.Navigator>
   )
 };

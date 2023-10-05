@@ -117,10 +117,12 @@ export const Basket = () => {
   ]);
 
   const handleDeleteCourse = (index: number) => {
-    const updatedCourses = [...courses];
-    updatedCourses.splice(index, 1);
-    setCourses(updatedCourses);
-  };
+    setCourses((prevCourses) => {
+      const updatedCourses = [...prevCourses];
+      updatedCourses.splice(index, 1);
+      return updatedCourses;
+    });
+  };  
 
   useEffect(() => {
     setTotalCourses(courses.length);

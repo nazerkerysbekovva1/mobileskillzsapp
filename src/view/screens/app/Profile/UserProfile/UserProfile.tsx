@@ -87,7 +87,7 @@ export const UserProfile = () => {
             
         }
 
-        const imageSourse = userData.avatar ? { uri: userData.avatar } : require("../../../../../../assets/default-image.png");
+        const imageSourse = userData?.avatar ? { uri: userData?.avatar } : require("../../../../../../assets/default-image.png");
 
     return(
         <SafeAreaView className='flex-1 bg-black'>
@@ -96,8 +96,8 @@ export const UserProfile = () => {
                     <View className='w-15 h-15 mb-1 rounded-full border border-2 border-black'>
                         <Image source={imageSourse} className='w-full h-full rounded-full'/>
                     </View>
-                    <Text className='text-lg text-black font-bold'>{userData.full_name}</Text>
-                    <Text className='text-black'>{userData.email}</Text>
+                    <Text className='text-lg text-black font-bold'>{userData?.full_name}</Text>
+                    <Text className='text-black'>{userData?.email}</Text>
                     <TouchableOpacity onPress={toggleVisibilityLogout} className='absolute right-0 rounded-full p-1 bg-black'>
                         <Icon src={require('../../../../../../assets/icon/setting2.png')} size={20}/>
                     </TouchableOpacity>

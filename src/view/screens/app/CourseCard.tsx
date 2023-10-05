@@ -113,7 +113,6 @@ const CourseCard = ({ route }: { route: any }) => {
   // console.log(course);
   // console.log(Data.type)
 
-  const [isPlaying, setIsPlaying] = useState(false);  
   const [showFullText, setShowFullText] = useState(false);
   const toggleTextVisibility = () => {
     setShowFullText(!showFullText);
@@ -270,7 +269,8 @@ const CourseCard = ({ route }: { route: any }) => {
       });
     };
 
-    const teacherAvatar = course?.teacher?.avatar ? { uri: course?.teacher?.avatar} : require('../../../../assets/ava.png');   
+    const teacherAvatar = course?.teacher?.avatar ? { uri: course?.teacher?.avatar} : require('../../../../assets/default-image.png');   
+    const imageCover = course?.image_cover ? { uri: course?.image_cover} : require('../../../../assets/default-image.png');   
 
     const [activeLike, setActiveLike] = useState(course?.is_favorite);
     const [activeBasket, setActiveBasket] = useState(false);
@@ -312,15 +312,9 @@ const CourseCard = ({ route }: { route: any }) => {
           </TouchableOpacity>
         </View>
 
-        <View className='w-full h-40 items-center border border-white my-4'>  
-              <Video
-                  source={require('../../../../assets/video/1.mp4')}
-                  paused={!isPlaying}  
-                  controls={true}  
-                  className='w-full h-full'
-                  repeat={true}  
-              /> 
-              <TouchableOpacity onPress={() => setIsPlaying(p => !p)} className='w-9 h-9 absolute rounded-lg bg-custom-Green items-center justify-center top-16'>
+        <View className='w-full h-48 items-center my-4'>  
+              <Image source={imageCover} className='w-full h-full'/>
+              <TouchableOpacity className='w-9 h-9 absolute rounded-lg bg-custom-Green items-center justify-center top-20'>
                   <Icon src={require('../../../../assets/icon/play.png')} size={14}/>
               </TouchableOpacity>
         </View> 

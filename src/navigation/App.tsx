@@ -13,6 +13,7 @@ import MainRoute from '../view/screens/MainRoute';
 import { Basket } from '../view/screens/app/Basket';
 import { Mentor } from '../view/screens/app/Profile/MentorProfile/Mentor';
 import { ArticleItem } from '../view/screens/app/Profile/MentorProfile/ArticleItem';
+import { CourseTime } from '../view/screens/app/Webinar/CourseTime';
 
 import { QueryClient, QueryClientProvider } from 'react-query'
 
@@ -50,6 +51,7 @@ export const App = () => {
       <Stack.Screen name="Basket" options={{ headerShown: false }} component={Basket} />
       <Stack.Screen name="MentorProfile" options={{ headerShown: false }} component={Mentor} />
       <Stack.Screen name="ArticleItem" options={{ headerShown: false }} component={ArticleItem} />
+      <Stack.Screen name="CourseTime" options={{ headerShown: false }} component={CourseTime} />
     </Stack.Navigator>
   );
 };

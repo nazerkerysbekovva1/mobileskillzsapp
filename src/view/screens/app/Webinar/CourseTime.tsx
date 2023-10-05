@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
 
+import VideoPlayer from '../../../../component/Video';
 import { useQuery } from 'react-query';
 import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session } from '../../../../data/client/http-client';
 
@@ -67,11 +68,11 @@ export const CourseTime = ({ route }: { route: any }) => {
   let course: any;
 
   // console.log(Data)
-  if(Data.type === 'course'){
+  if(Data?.type === 'course'){
     const { data: GetCourse } = useQuery('Course', () => fetchCourse(Data.id));
     course = GetCourse?.data;
 
-  } else if(Data.type === 'webinar'){
+  } else if(Data?.type === 'webinar'){
     const { data: GetWebinar } = useQuery('Webinar', () => fetchCourse(Data.id));
     course = GetWebinar?.data;
 
@@ -81,7 +82,10 @@ export const CourseTime = ({ route }: { route: any }) => {
 
   }
 
-  const [webinarStatus, setWebinarStatus] = useState(WebinarStatus.NOT_STARTED);
+  const [webinarStatus, setWebinarStatus] = useState(
+    Data?.type === 'webinar' ? WebinarStatus.NOT_STARTED : null
+  );
+  
 
     const handleRecheck = () => {
         console.log('handle recheck');
@@ -120,6 +124,11 @@ export const CourseTime = ({ route }: { route: any }) => {
     setIsOpenSessions(newIsOpenDropdowns);
   };
 
+  // content video url set
+  const initialVideoUrl = encodeURI(course?.files_chapters[0]?.files[0]?.file || '');
+  const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
+  const [isVideoPlaying, setIsVideoPlaying] = useState<string | null>(null);
+
     const renderDropdownContent = (items: File[]) => {
       return items.map((item, index) => {
         const toggleDropdownPart = () => {
@@ -127,6 +136,11 @@ export const CourseTime = ({ route }: { route: any }) => {
           newIsOpenParts[index] = !newIsOpenParts[index];
           setIsOpenParts(newIsOpenParts);
         };
+      
+      const playVideo = (videoUrl: any) => {
+        setVideoUrl(encodeURI(videoUrl));
+        setIsVideoPlaying(videoUrl);
+      };
       return (
         <View key={index} className='p-2 border border-gray-500 rounded-xl'>
           <View className='flex-row items-center'>
@@ -144,12 +158,18 @@ export const CourseTime = ({ route }: { route: any }) => {
           <View> 
             {isOpenParts[index] && (
               <View className='mt-2'>
-                <Text>{item.description}</Text>
+                <Text className='text-white'>{item.description}</Text>
                 <View className='flex-row justify-between items-center'>
-                  <Text>{item.volume}</Text>
-                  <TouchableOpacity onPress={() => console.log} className='bg-custom-Green rounded-xl p-1'>
-                    <Text className='text-black font-bold'>Проиграть</Text>
-                  </TouchableOpacity>
+                  <Text className='text-white'>{item.volume}</Text>
+                  {isVideoPlaying === item.file ? (
+                    <TouchableOpacity disabled={true} className='bg-gray-500 rounded-xl p-1'>
+                      <Text className='text-black font-bold'>Играет</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity onPress={() => playVideo(item.file)} className='bg-custom-Green rounded-xl p-1'>
+                      <Text className='text-black font-bold'>Проиграть</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             )}  
@@ -199,7 +219,7 @@ export const CourseTime = ({ route }: { route: any }) => {
             {isOpenPartsOfSession[index] && (
               <View className='mt-2'>
                 <Text className='absolute -top-2 right-9 text-white'>{item.date}</Text>
-                <Text className='pt-4'>{item.description}</Text>
+                <Text className='pt-4 text-white'>{item.description}</Text>
               </View>
             )}
           </View>
@@ -208,29 +228,35 @@ export const CourseTime = ({ route }: { route: any }) => {
       });
     };
 
-      
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
       <ScrollView showsVerticalScrollIndicator={false}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon src={require('../../../../../assets/icon/arrow-left.png')} size={20}/>
           </TouchableOpacity>
-
-        <View className='items-center mb-6'>  
-          <View className='flex-row items-center space-x-3 my-4'>
-              <Icon src={require('../../../../../assets/img/live_session.png')} size={86}/>
-              <View style={{width: '65%'}}>
-                <Text className='text-white'>
-                  {webinarStatus === "not_started"
-                    ? 'Вебинар ещё не начался. \nВебинар начнётся 25 июля в 19:30'
-                    : webinarStatus === "started"
-                      ? 'Вебинар начался. \nВы можете зайти на вебинар сейчас'
-                      : 'Вебинар закончен. \nВы не можете присоединиться'}
-
-                </Text>
-              </View>
-          </View>
           
+          <View className='items-center mb-6'> 
+            {Data?.type === 'webinar' 
+              ? (<View className='flex-row items-center space-x-3 my-4'>
+                    <Icon src={require('../../../../../assets/img/live_session.png')} size={86}/>
+                    <View style={{width: '65%'}}>
+                      <Text className='text-white'>
+                        {webinarStatus === "not_started"
+                          ? 'Вебинар ещё не начался. \nВебинар начнётся 25 июля в 19:30'
+                          : webinarStatus === "started"
+                            ? 'Вебинар начался. \nВы можете зайти на вебинар сейчас'
+                            : 'Вебинар закончен. \nВы не можете присоединиться'}
+
+                      </Text>
+                    </View>
+                </View>
+              ) : (
+                <VideoPlayer
+                  source={{uri: videoUrl}}
+                />
+              )}
+          
+
           {webinarStatus === "not_started" && (
             <TouchableOpacity onPress={handleRecheck} className='rounded-lg bg-custom-Green py-1 px-2 items-center'>
               <Text className='text-black font-bold'>Проверить снова</Text>

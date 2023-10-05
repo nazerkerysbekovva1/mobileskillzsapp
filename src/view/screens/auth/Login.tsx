@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import TouchID from 'react-native-touch-id';
 
+import { extract } from '../../../component/Extract';
 import { useMutation } from 'react-query';
 import { login, forgotPassword, } from '../../../data/client/http-client';
 
@@ -128,8 +129,11 @@ export const Login: React.FC<NavigationProps> = ({ navigation }) => {
           username,
           password
         });
-    
-        const responseData = await response.json();
+        
+        /// extract func
+        const responseText = await response.text();
+        const responseJSON = extract(responseText);
+        const responseData = JSON.parse(responseJSON);
         const userAuthToken = responseData.data.token; 
         console.log('token',userAuthToken);
 
