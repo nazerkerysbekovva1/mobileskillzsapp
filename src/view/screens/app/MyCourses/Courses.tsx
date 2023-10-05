@@ -5,8 +5,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../../component/Icon';
 import Slider from '@react-native-community/slider';
 
-import { fetchUserData, CourseData, userLogin } from '../../../../data/client/http-client';
-import { useQuery } from 'react-query';
+import { fetchUserData, CourseData, userLogin, toggleFavorites } from '../../../../data/client/http-client';
+import { useQuery, useMutation } from 'react-query';
 import { Alert } from 'react-native';
 import { API_ENDPOINTS } from '../../../../data/client/endpoints';
 
@@ -41,20 +41,30 @@ const ComponentItem: React.FC<Prop> = (data) => {
       setActiveLike(data.is_favorite);
   }, [data.is_favorite]);
   
-  const toggleLikeVisibility = async() => {
-    if(await userLogin()){
-      setActiveLike(!activeLike);        // POST: set 'is_favorite'
-    } else{
-      Alert.alert('Message','Please Sign in');
+  const mutationFavorites = useMutation(toggleFavorites, {
+    onSuccess: async () => {
+      console.log('toggle fav')
     }
-  };
+  });
+  const toggleLikeVisibility = async (id: number) => {
+    if (await userLogin()) {
+      const response = await mutationFavorites.mutateAsync(id);
+      if (!response) {
+        console.log('error');
+      } else {
+        setActiveLike(!activeLike); 
+      }
+    } else {
+      Alert.alert('Message', 'Please Sign in');
+    }
+  };    
 
   return(
-      <TouchableOpacity onPress={handleNavigateToCourseCard} className='w-full h-32 mb-4'>
+      <TouchableOpacity onPress={() => handleNavigateToCourseCard(data)} className='w-full h-32 mb-4'>
           <Image className='w-full h-full rounded-lg' source={imageSource} />
               <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
               <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.type}</Text>
-              <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
+              <TouchableOpacity onPress={() => toggleLikeVisibility(data?.id)} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                   <Icon 
                       src={
                           activeLike

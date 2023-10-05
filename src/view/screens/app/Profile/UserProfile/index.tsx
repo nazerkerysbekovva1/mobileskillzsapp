@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { EditProfile } from './EditProfile';
 import { UserProfile } from './UserProfile';
 import { Default } from './Default';
+import { Favorites } from './Favorites';
 
 import { logout, userLogin } from '../../../../../data/client/http-client';
 
@@ -29,7 +30,8 @@ const Index = () => {
         ) : (
             <Stack.Screen name="Default" options={{ headerShown: false }} component={Default} />
         )}
-        <Stack.Screen name="Profile" options={{ headerShown: false }} component={EditProfile} />
+        <Stack.Screen name="EditProfile" options={{ headerShown: false }} component={EditProfile} />
+        <Stack.Screen name="Favorites" options={{ headerShown: false }} component={Favorites} />
       </Stack.Navigator>
     )
   };

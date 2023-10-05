@@ -50,7 +50,7 @@ export const UserProfile = () => {
         },
         {
             name: 'Избранные',
-            navigate: ''
+            navigate: 'Favorites'
         },]
     const aboutApp = [
         {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
 import { renderStarRating } from '../../../component/ratingStar';
-import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session, userLogin } from '../../../data/client/http-client';
+import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session, userLogin, toggleFavorites } from '../../../data/client/http-client';
 import { Alert } from 'react-native';
 
 interface Item {
@@ -278,14 +278,24 @@ const CourseCard = ({ route }: { route: any }) => {
       useEffect(() => {
           setActiveLike(course?.is_favorite);
       }, [course?.is_favorite]);
-  
-      const toggleLikeVisibility = async() => {
-        if(await userLogin()){
-          setActiveLike(!activeLike);        // POST: set 'is_favorite'
-        } else{
-          Alert.alert('Message','Please Sign in');
+  console.log(course?.is_favorite)
+      const mutationFavorites = useMutation(toggleFavorites, {
+        onSuccess: async () => {
+          console.log('toggle fav')
         }
-      };
+      });
+      const toggleLikeVisibility = async (id: number) => {
+        if (await userLogin()) {
+          const response = await mutationFavorites.mutateAsync(id);
+          if (!response) {
+            console.log('error');
+          } else {
+            setActiveLike(!activeLike); 
+          }
+        } else {
+          Alert.alert('Message', 'Please Sign in');
+        }
+      };   
       const toggleBasketVisibility = async() => {
         if(await userLogin()){
           setActiveBasket(!activeBasket);        // POST: set 
@@ -374,7 +384,7 @@ const CourseCard = ({ route }: { route: any }) => {
 
               {course?.type === 'webinar'
                 ? (
-                    <TouchableOpacity onPress={toggleLikeVisibility} className={activeLike ? "mt-3 bg-custom-Green border rounded-xl items-center justify-center space-x-2 py-1 px-5 flex-row"
+                    <TouchableOpacity onPress={() => toggleLikeVisibility(course?.id)} className={activeLike ? "mt-3 bg-custom-Green border rounded-xl items-center justify-center space-x-2 py-1 px-5 flex-row"
                                                                                            : "mt-3 border border-white rounded-xl items-center justify-center space-x-2 py-1 px-5 flex-row"}>
                       <Icon src={require('../../../../assets/icon/like.png')} size={20} color={activeLike ? 'black' : 'white'}/>
                       <Text className={activeLike ? "font-bold text-black text-base"
@@ -384,13 +394,13 @@ const CourseCard = ({ route }: { route: any }) => {
                     <View className='flex-row justify-between mt-3'>
                       <TouchableOpacity onPress={toggleBasketVisibility} className={activeBasket ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"
                                                                                                  : "border border-white rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"}>
-                          <Icon src={require('../../../../assets/icon/like.png')} size={20} color={activeBasket ? 'black' : 'white'}/>
+                          <Icon src={require('../../../../assets/icon/shopping.png')} size={20} color={activeBasket ? 'black' : 'white'}/>
                           <Text className={activeBasket ? "font-bold text-black text-base"
                                                       : "font-bold text-white text-base"}>в корзину</Text>
                       </TouchableOpacity >
-                        <TouchableOpacity onPress={toggleLikeVisibility} className={activeLike ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"
+                        <TouchableOpacity onPress={() => toggleLikeVisibility(course?.id)} className={activeLike ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"
                                                                                                : "border border-white rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"}>
-                            <Icon src={require('../../../../assets/icon/shopping.png')} size={20} color={activeLike ? 'black' : 'white'}/>
+                            <Icon src={require('../../../../assets/icon/like.png')} size={20} color={activeLike ? 'black' : 'white'}/>
                             <Text className={activeLike ? "font-bold text-black text-base"
                                                         : "font-bold text-white text-base"}>в избранное</Text>
                         </TouchableOpacity >

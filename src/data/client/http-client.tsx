@@ -118,15 +118,28 @@ export function forgotPassword({username}: EmailOrPhoneData) : Promise<Response>
 }
 
 
-function getData (endpoint: string) : Promise<Response> {
+async function getData (endpoint: string) : Promise<Response> {
     console.log(`${Config.apiUrl}/api/development${endpoint}`);
+
+    const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+    const headers: {
+      Accept: string;
+      'Content-Type': string;
+      'x-api-key': string;
+      [key: string]: string; 
+    } = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-api-key': Config.secret,
+    };
+
+    if (await userLogin()) {
+      headers['Authorization'] = `Bearer ${userAuthToken}`;
+    }
+
     return fetch(`${Config.apiUrl}/api/development${endpoint}`, {
         method: 'GET',
-        headers : {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-api-key': Config.secret
-        },
+        headers : headers
     })
 }
 export const fetchData = async (endpoint: string) =>{
@@ -140,15 +153,28 @@ export const fetchData = async (endpoint: string) =>{
     return JSON.parse(responseJSON);
 }
 
-function getWebinarsOfCategory (id: number) : Promise<Response> {
+async function getWebinarsOfCategory (id: number) : Promise<Response> {
     console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.CATEGORIES}/${id}${API_ENDPOINTS.WEBINARS}`);
+
+    const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+    const headers: {
+      Accept: string;
+      'Content-Type': string;
+      'x-api-key': string;
+      [key: string]: string; 
+    } = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-api-key': Config.secret,
+    };
+
+    if (await userLogin()) {
+      headers['Authorization'] = `Bearer ${userAuthToken}`;
+    }  
+
     return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.CATEGORIES}/${id}${API_ENDPOINTS.WEBINARS}`, {
         method: 'GET',
-        headers : {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-api-key': Config.secret
-        },
+        headers : headers
     })
 }
 export const fetchWebinarsOfCategory = async (id: number) =>{
@@ -169,7 +195,7 @@ export interface CourseData {
       view: boolean;
     };
     can_view_error?: null | string;
-    id?: number;
+    id: number;
     status?: string;
     label?: string;
     title?: string;
@@ -333,15 +359,28 @@ export interface Chapter {   //file_chapters and session_chapters
     quizzes: any[]; 
   }
 
-  function getCourse (id: number) : Promise<Response> {
+async function getCourse (id: number) : Promise<Response> {
     console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.COURSES}/${id}`)
+
+    const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+    const headers: {
+      Accept: string;
+      'Content-Type': string;
+      'x-api-key': string;
+      [key: string]: string; 
+    } = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'x-api-key': Config.secret,
+    };
+
+    if (await userLogin()) {
+      headers['Authorization'] = `Bearer ${userAuthToken}`;
+    }  
+
     return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.COURSES}/${id}`, {
         method: 'GET',
-        headers : {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'x-api-key': Config.secret
-        },
+        headers : headers
     })
 }
 export const fetchCourse = async (id: number) =>{
@@ -460,4 +499,23 @@ export const fetchUserProfile = async (id: number) =>{
   const responseText = await response.text();
   const responseJSON = extract(responseText);
   return JSON.parse(responseJSON);
+}
+
+export async function toggleFavorites (id: number) : Promise<Response> {
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.FAVORITES}${API_ENDPOINTS.FAVORITES_TOGGLE}/${id}`)
+  const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.FAVORITES}${API_ENDPOINTS.FAVORITES_TOGGLE}/${id}`, {
+      method: 'POST',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+  })
+  if(response.ok){
+    console.log('toggle "favorite" Success')
+  }
+    return response
 }

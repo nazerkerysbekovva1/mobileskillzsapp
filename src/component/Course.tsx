@@ -4,8 +4,8 @@ import { Icon } from './Icon';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-import { CourseData, userLogin } from '../data/client/http-client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation } from 'react-query';
+import { CourseData, userLogin, toggleFavorites } from '../data/client/http-client';
 
 type RootStackParamList = {
     CourseCard: {
@@ -32,13 +32,23 @@ export const ComponentItem: React.FC<CourseData> = (data) => {
           setActiveLike(data.is_favorite);
       }, [data.is_favorite]);
   
-      const toggleLikeVisibility = async() => {
-        if(await userLogin()){
-          setActiveLike(!activeLike);        // POST: set 'is_favorite'
-        } else{
-          Alert.alert('Message','Please Sign in');
+      const mutationFavorites = useMutation(toggleFavorites, {
+        onSuccess: async () => {
+          console.log('toggle fav')
         }
-      };
+      });
+      const toggleLikeVisibility = async (id: number) => {
+        if (await userLogin()) {
+          const response = await mutationFavorites.mutateAsync(id);
+          if (!response) {
+            console.log('error');
+          } else {
+            setActiveLike(!activeLike); 
+          }
+        } else {
+          Alert.alert('Message', 'Please Sign in');
+        }
+      };      
   
       const handleNavigateToCourseCard = (data: CourseData) => {
         navigation.navigate('CourseCard', {
@@ -51,7 +61,7 @@ export const ComponentItem: React.FC<CourseData> = (data) => {
               <Image className='w-full h-full rounded-lg' source={imageSource} />
                       <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
                       <Text className='absolute left-0 top-6 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.type}</Text>
-                  <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
+                  <TouchableOpacity onPress={() => toggleLikeVisibility(data?.id)} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                       <Icon 
                           src={
                               activeLike
@@ -92,13 +102,23 @@ export const ComponentItem2: React.FC<Prop> = (data) => {
     };
 
     const [activeLike, setActiveLike] = useState(false);
-    const toggleLikeVisibility = async() => {
-      if(await userLogin()){
-        setActiveLike(!activeLike);        // POST: set 'is_favorite'
-      } else{
-        Alert.alert('Message','Please Sign in');
+    const mutationFavorites = useMutation(toggleFavorites, {
+      onSuccess: async () => {
+        console.log('toggle post or delete')
       }
-  };
+    });
+    const toggleLikeVisibility = async (id: number) => {
+      if (await userLogin()) {
+        const response = await mutationFavorites.mutateAsync(id);
+        if (!response) {
+          console.log('error');
+        } else {
+          setActiveLike(!activeLike); 
+        }
+      } else {
+        Alert.alert('Message', 'Please Sign in');
+      }
+    }; 
 
     const imageSource = data.image ? { uri: data.image } : require("../../assets/default-image.png");
 
@@ -107,7 +127,7 @@ export const ComponentItem2: React.FC<Prop> = (data) => {
             <Image className='w-full h-full rounded-lg' source={imageSource} />
                 <Text className='absolute left-0 top-0 bg-custom-Green px-1 rounded-xl text-black m-2'>{data.category}</Text>
                 <Text className='bg-custom-Green px-1 rounded-xl text-black'>{data.type}</Text>
-                <TouchableOpacity onPress={toggleLikeVisibility} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
+                <TouchableOpacity onPress={() => toggleLikeVisibility(data?.id)} className='absolute right-0 bg-custom-Green p-1 rounded-full m-2'>
                     <Icon 
                         src={
                             activeLike

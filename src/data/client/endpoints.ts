@@ -9,16 +9,18 @@ export const API_ENDPOINTS = {
   CATEGORIES: '/categories',
   COURSES: '/courses',
   WEBINARS: '/webinars',
-  PURCHASES: 'purchases',
-  PANEL: 'panel',
+  PURCHASES: '/purchases',
+  PANEL: '/panel',
   SETTINGS: '/settings',
-
+  // FAVORITES: '/favorites',
 
   //
   MY_COURSES: '/panel/webinars/purchases',
   PROFILE_SETTINGS: '/panel/profile-setting',
   USERS: '/users',
   PROFILE: '/profile',
+  FAVORITES: '/panel/favorites',
+  FAVORITES_TOGGLE: '/toggle',
  
 
   USERS_GOOGLE: '/google',
