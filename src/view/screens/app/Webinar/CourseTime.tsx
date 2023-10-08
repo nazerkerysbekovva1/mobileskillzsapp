@@ -40,7 +40,7 @@ const Dropdown: React.FC<DropdownProps> = ({ titleContent, content, isOpen, setI
     <View className='rounded-xl bg-custom-Gray p-2 mb-4'>
       <View className='flex-row items-center px-2'>
         <Icon src={require('../../../../../assets/icon/grid.png')} size={20}/>
-        <Text className='text-white text-base mx-4'>{titleContent}</Text>
+        <Text className='text-white text-base mx-4 pr-6'>{titleContent}</Text>
         <TouchableOpacity className='absolute right-4' onPress={toggleDropdown}>
            <Icon
               src={isOpen 
@@ -128,7 +128,7 @@ export const CourseTime = ({ route }: { route: any }) => {
   const initialVideoUrl = encodeURI(course?.files_chapters[0]?.files[0]?.file || '');
   const [videoUrl, setVideoUrl] = useState(initialVideoUrl);
   const [isVideoPlaying, setIsVideoPlaying] = useState<string | null>(null);
-
+ 
     const renderDropdownContent = (items: File[]) => {
       return items.map((item, index) => {
         const toggleDropdownPart = () => {
@@ -227,17 +227,18 @@ export const CourseTime = ({ route }: { route: any }) => {
         );
       });
     };
-
+    console.log(videoUrl)
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
       <ScrollView showsVerticalScrollIndicator={false}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
               <Icon src={require('../../../../../assets/icon/arrow-left.png')} size={20}/>
           </TouchableOpacity>
-          
-          <View className='items-center mb-6'> 
-            {Data?.type === 'webinar' 
-              ? (<View className='flex-row items-center space-x-3 my-4'>
+           
+          {!course?.files_chapters 
+            ? (
+              <View className='items-center mb-6'>
+                <View className='flex-row items-center space-x-3 my-4'>
                     <Icon src={require('../../../../../assets/img/live_session.png')} size={86}/>
                     <View style={{width: '65%'}}>
                       <Text className='text-white'>
@@ -250,26 +251,25 @@ export const CourseTime = ({ route }: { route: any }) => {
                       </Text>
                     </View>
                 </View>
-              ) : (
-                <VideoPlayer
-                  source={{uri: videoUrl}}
-                />
-              )}
           
+                {webinarStatus === "not_started" && (
+                  <TouchableOpacity onPress={handleRecheck} className='rounded-lg bg-custom-Green py-1 px-2 items-center'>
+                    <Text className='text-black font-bold'>Проверить снова</Text>
+                  </TouchableOpacity>
+                )}
 
-          {webinarStatus === "not_started" && (
-            <TouchableOpacity onPress={handleRecheck} className='rounded-lg bg-custom-Green py-1 px-2 items-center'>
-              <Text className='text-black font-bold'>Проверить снова</Text>
-            </TouchableOpacity>
-          )}
-
-          {webinarStatus === "started" && (
-            <TouchableOpacity onPress={handleToWebinar} className='flex-row rounded-lg bg-custom-Green py-1 px-2 space-x-1 items-center'>
-              <Icon src={require('../../../../../assets/icon/video.png')} size={16} color='black' />
-              <Text className='text-black font-bold'>Войти в вебинар</Text>
-            </TouchableOpacity>
-          )}
-        </View> 
+                {webinarStatus === "started" && (
+                  <TouchableOpacity onPress={handleToWebinar} className='flex-row rounded-lg bg-custom-Green py-1 px-2 space-x-1 items-center'>
+                    <Icon src={require('../../../../../assets/icon/video.png')} size={16} color='black' />
+                    <Text className='text-black font-bold'>Войти в вебинар</Text>
+                  </TouchableOpacity>
+                )}
+              </View> 
+            ) : (
+              <VideoPlayer
+                source={{uri: videoUrl}}
+              />
+            )}
 
         {course?.files_chapters && 
             <View className='pt-3'>

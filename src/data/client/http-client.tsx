@@ -482,13 +482,26 @@ export interface Badge {
 
 async function getUserProfile(id: number) : Promise<Response> {
   console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.PROFILE}`)
+
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+  const headers: {
+    Accept: string;
+    'Content-Type': string;
+    'x-api-key': string;
+    [key: string]: string; 
+  } = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'x-api-key': Config.secret,
+  };
+
+  if (await userLogin()) {
+    headers['Authorization'] = `Bearer ${userAuthToken}`;
+  } 
+
   return fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.PROFILE}`, {
       method: 'GET',
-      headers : {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'x-api-key': Config.secret,
-      },
+        headers : headers
   })
 }
 export const fetchUserProfile = async (id: number) =>{
@@ -516,6 +529,49 @@ export async function toggleFavorites (id: number) : Promise<Response> {
   })
   if(response.ok){
     console.log('toggle "favorite" Success')
+  }
+    return response
+}
+
+export async function toggleFollow ({ id, status }: { id: number; status: boolean }) : Promise<Response> {
+  const data = {
+    status,
+  }
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.FOLLOW}`)
+  const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.USERS}/${id}${API_ENDPOINTS.FOLLOW}`, {
+      method: 'POST',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+      body: JSON.stringify(data)
+  })
+  if(response.ok){
+    console.log('toggle "follow" Success')
+  }
+    return response
+}
+
+export async function EnrollOnCourse (id: number) : Promise<Response> {
+
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.WEBINARS}/${id}${API_ENDPOINTS.FREE}`)
+  const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.WEBINARS}/${id}${API_ENDPOINTS.FREE}`, {
+      method: 'POST',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+  })
+  if(response.ok){
+    console.log('Enroll on course is Success')
   }
     return response
 }

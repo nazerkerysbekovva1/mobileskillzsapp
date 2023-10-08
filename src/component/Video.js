@@ -436,7 +436,7 @@ initSeekPanResponder() {
 
     {this.state.showControls && (
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={() => this.setState({ paused: !this.state.paused })} style={styles.button}>
+          <TouchableOpacity onPress={() => this.setState({ paused: !this.state.paused })} className='w-9 h-9 rounded-lg bg-custom-Green items-center justify-center'>
               <Icon src={this.state.paused ? require('../../assets/icon/play.png') : require('../../assets/icon/pause.png')} size={14}/>
           </TouchableOpacity>
         </View>

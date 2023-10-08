@@ -21,7 +21,8 @@ export const API_ENDPOINTS = {
   PROFILE: '/profile',
   FAVORITES: '/panel/favorites',
   FAVORITES_TOGGLE: '/toggle',
- 
+  FOLLOW:'/follow',
+  FREE: '/free',
 
   USERS_GOOGLE: '/google',
   

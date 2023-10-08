@@ -6,7 +6,17 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { Icon } from '../../../component/Icon';
 import Video from 'react-native-video';
 import { renderStarRating } from '../../../component/ratingStar';
-import { CourseData, fetchCourse, Comment, FAQS, Chapter, File, Session, userLogin, toggleFavorites } from '../../../data/client/http-client';
+import { 
+  CourseData, 
+  fetchCourse, 
+  Comment, 
+  FAQS, 
+  Chapter, 
+  File, 
+  Session, 
+  userLogin, 
+  toggleFavorites,
+  EnrollOnCourse } from '../../../data/client/http-client';
 import { Alert } from 'react-native';
 
 interface Item {
@@ -141,14 +151,28 @@ const CourseCard = ({ route }: { route: any }) => {
       { id: '2', name: 'Второй тарифный план (15% скидка) \nДля первых 5 студентов до 7 июля, 2023' },
     ];
 
+    const mutationEnroll = useMutation(EnrollOnCourse, {
+      onSuccess: async () => {
+        console.log('toggle follow')
+      }
+    });
     const handleBuyNow = async(data: CourseData) => {
       if (selectedItem) {
         console.log('Selected Item:', selectedItem);
       } 
       if(await userLogin()){
-        navigation.navigate('CourseTime', {
-          data,
-        });
+        if (data?.auth_has_bought) {
+          navigation.navigate('CourseTime', {
+            data,
+          });
+        } else if (course?.price === 0) {
+          const response = await mutationEnroll.mutateAsync(data?.id);
+          if (!response) {
+            console.log('error');
+          }
+        } else {
+          // take the user to a payment screen
+        }
       } else{
         Alert.alert('Message','Please Sign in');
       }
@@ -379,7 +403,11 @@ const CourseCard = ({ route }: { route: any }) => {
                   numColumns={1}
                 /> */}
               <TouchableOpacity onPress={() => handleBuyNow(course)} className="mt-5 bg-custom-Green rounded-xl items-center py-2">
-                  <Text className="font-bold text-black text-base">Купить сейчас</Text>
+                {course?.auth_has_bought  
+                  ? (<Text className="font-bold text-black text-base">Go to learning page</Text>)
+                  : course?.price === 0 ? (<Text className="font-bold text-black text-base">Enroll on course</Text>)
+                  : (<Text className="font-bold text-black text-base">Add to cart</Text>)
+                }
               </TouchableOpacity >
 
               {course?.type === 'webinar'
@@ -392,14 +420,14 @@ const CourseCard = ({ route }: { route: any }) => {
                     </TouchableOpacity > 
                 ) : (
                     <View className='flex-row justify-between mt-3'>
-                      <TouchableOpacity onPress={toggleBasketVisibility} className={activeBasket ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"
-                                                                                                 : "border border-white rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"}>
+                      <TouchableOpacity onPress={toggleBasketVisibility} className={activeBasket ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row space-x-5"
+                                                                                                 : "border border-white rounded-xl items-center py-1 px-5 flex-row space-x-5"}>
                           <Icon src={require('../../../../assets/icon/shopping.png')} size={20} color={activeBasket ? 'black' : 'white'}/>
                           <Text className={activeBasket ? "font-bold text-black text-base"
                                                       : "font-bold text-white text-base"}>в корзину</Text>
                       </TouchableOpacity >
-                        <TouchableOpacity onPress={() => toggleLikeVisibility(course?.id)} className={activeLike ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"
-                                                                                               : "border border-white rounded-xl items-center py-1 px-5 flex-row w-44 justify-between"}>
+                        <TouchableOpacity onPress={() => toggleLikeVisibility(course?.id)} className={activeLike ? "bg-custom-Green border rounded-xl items-center py-1 px-5 flex-row space-x-5"
+                                                                                               : "border border-white rounded-xl items-center py-1 px-5 flex-row space-x-5"}>
                             <Icon src={require('../../../../assets/icon/like.png')} size={20} color={activeLike ? 'black' : 'white'}/>
                             <Text className={activeLike ? "font-bold text-black text-base"
                                                         : "font-bold text-white text-base"}>в избранное</Text>
@@ -413,11 +441,11 @@ const CourseCard = ({ route }: { route: any }) => {
             : <Text className="text-white text-base">Содержание курса</Text>
           }          
           <View className='flex-row items-center space-x-1 my-1'>
-              <Text className='mr-2'>5 секций</Text>
+              <Text className='mr-2 text-white'>5 секций</Text>
               <Icon src={require('../../../../assets/icon/dot.png')} size={5}/>
-              <Text className='mr-2'>18 лекций</Text>
+              <Text className='mr-2 text-white'>18 лекций</Text>
               <Icon src={require('../../../../assets/icon/dot.png')} size={5}/>
-              <Text>12 часов 20 минут</Text>
+              <Text className='text-white'>12 часов 20 минут</Text>
           </View>
           
           {course?.files_chapters && 

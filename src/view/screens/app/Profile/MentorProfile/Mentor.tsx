@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { Icon } from '../../../../../component/Icon';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { ComponentItem } from '../../../../../component/Course';
-import { useQuery } from 'react-query';
-import { fetchUserProfile, Badge, CourseData, Teacher, UserData } from '../../../../../data/client/http-client';
+import { useQuery, useMutation } from 'react-query';
+import { fetchUserProfile, Badge, CourseData, toggleFollow, userLogin } from '../../../../../data/client/http-client';
 import { renderStarRating } from '../../../../../component/ratingStar';
+import { Alert } from 'react-native';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -20,9 +20,28 @@ export const Mentor = ({ route }: { route: any }) => {
 
   const imageSourse = userData?.avatar ? { uri: userData?.avatar } : require("../../../../../../assets/default-image.png");
 
-  const [scrollY, setScrollY] = useState(0);
-  const [isScrollViewEnd, setIsScrollViewEnd] = useState(false);
-  const [isScrollingUp, setIsScrollingUp] = useState(false);
+  const [isFollow, setIsFollow] = useState(userData.auth_user_is_follower);
+  useEffect(() => {
+      setIsFollow(userData.auth_user_is_follower);
+  }, [userData.auth_user_is_follower]);
+
+  const mutationFollow = useMutation(toggleFollow, {
+    onSuccess: async () => {
+      console.log('toggle follow')
+    }
+  });
+  const toggleFollowVisibility = async (id: number) => {
+    if (await userLogin()) {
+      const response = await mutationFollow.mutateAsync({id, status: !isFollow});
+      if (!response) {
+        console.log('error');
+      } else {
+        setIsFollow(!isFollow); 
+      }
+    } else {
+      Alert.alert('Message', 'Please Sign in');
+    }
+  };
 
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
@@ -31,46 +50,8 @@ export const Mentor = ({ route }: { route: any }) => {
         <Icon src={require('../../../../../../assets/icon/arrow-left.png')} size={20}/>
       </TouchableOpacity>
 
-      {isScrollViewEnd && !isScrollingUp ? (
-          <Tab.Navigator
-            // className='px-4'
-            initialRouteName="About"
-            screenOptions={({route}) => ({
-              tabBarActiveTintColor: 'white',
-              tabBarInactiveTintColor: 'white',
-              tabBarCentered: true,
-              tabBarStyle: styles.tabBarStyle,
-              tabBarIndicatorStyle: { backgroundColor: 'white', height: 3, borderRadius: 5, },
-              tabBarLabel:({focused, color}) => {
-                if(focused) {
-                  color = 'white'
-                }
-                return <Text className='text-white'>{route.name}</Text>
-              }
-            })}>
-            <Tab.Screen name="About" component={About} />
-            <Tab.Screen name="Courses" component={() => Courses(userData)} />
-            <Tab.Screen name="Articles" component={Articles} />
-          </Tab.Navigator>
-          ) : (
             <ScrollView 
               showsVerticalScrollIndicator={false} 
-              onScroll={({ nativeEvent }) => {
-                const offsetY = nativeEvent.contentOffset.y;
-                const contentHeight = nativeEvent.contentSize.height;
-                const scrollViewHeight = nativeEvent.layoutMeasurement.height;
-                const isScrollingUp = offsetY > scrollY;
-
-                setScrollY(offsetY);
-
-                if (offsetY + scrollViewHeight >= contentHeight) {
-                  setIsScrollViewEnd(true);
-                } else {
-                  setIsScrollViewEnd(false);
-                }
-
-                setIsScrollingUp(isScrollingUp);
-              }}
               >
                 
               <View className='flex-row items-center justify-center space-x-5 my-6'>
@@ -117,8 +98,8 @@ export const Mentor = ({ route }: { route: any }) => {
                       </View>
                   } 
 
-                  <TouchableOpacity className='bg-custom-Green rounded-lg justify-center items-center py-2 px-6'>
-                    <Text className='text-black text-base'>Follow</Text>
+                  <TouchableOpacity onPress={() => toggleFollowVisibility(userData.id)} className={`rounded-lg justify-center items-center py-2 px-6 ${isFollow ? `bg-red-500 ` : `bg-custom-Green `}`}>
+                    <Text className='text-black text-base'>{isFollow ? 'UnFollow' : 'Follow'}</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -145,42 +126,54 @@ export const Mentor = ({ route }: { route: any }) => {
                 </View>
               </View>
 
+              <View style={{ height: 700 }}>
+                <Tab.Navigator
+                  initialRouteName="About"
+                  screenOptions={({route}) => ({
+                    tabBarActiveTintColor: 'white',
+                    tabBarInactiveTintColor: 'white',
+                    tabBarCentered: true,
+                    tabBarStyle: styles.tabBarStyle,
+                    tabBarIndicatorStyle: { backgroundColor: 'white', height: 3, borderRadius: 5, },
+                    tabBarLabel:({focused, color}) => {
+                      if(focused) {
+                        color = 'white'
+                      }
+                      return <Text className='text-white'>{route.name}</Text>
+                    }
+                  })}>
+                  <Tab.Screen name="About" component={About} initialParams={{ userData }}/>
+                  <Tab.Screen name="Courses" component={Courses} initialParams={{ userData }}/>
+                  <Tab.Screen name="Articles" component={Articles} />
+                </Tab.Navigator>
+              </View>
+
             </ScrollView>
-          )}
     </SafeAreaView>
   );
 }
 
-const About = () => {
-
+const About = ({ route }: { route: any }) => {
+  const userData = route.params.userData;
   const array = [
     {
       title: 'Education',
-      content: [
-        'Red Hat Certified Engineer (RHCE)',
-        'AWS Certified DevOps Engineer - Professional',
-        'Linux Foundation Certified System Administrator',
-        'Master of Science in Information Systems (MSIS) from University of Sydney'
-      ]
+      content: userData?.education,
     },
     {
       title: 'Experiences',
-      content: [
-        'supporting proprietary Unix operating systems including AIX, HP-UX, and Solaris.',
-        '10 years of experience working with Linux systems',
-      ]
+      content: userData?.experience,
     },
   ]
-
-  const skills = ['Management', 'Web development', 'Mobile development', ]
 
   const Params = () => {
     return(
       <View>
         {array.map((item, index) => (
+          item.content && item.content.length > 0 &&
           <View key={index} className='my-3'>
             <Text className='text-white mb-5'>{item.title}</Text>
-              {item.content.map((item, index) => (
+              {item?.content?.map((item: string, index: number) => (
                 <View key={index} className='flex-row mb-4 space-x-3'>
                   <Icon src={require('../../../../../../assets/icon/dot.png')} size={8} />
                   <Text className='text-white font-bold text-base -mt-2'>{item}</Text>
@@ -193,7 +186,7 @@ const About = () => {
   }
 
   return(
-    <ScrollView className='bg-black pt-3'>
+    <ScrollView className='bg-black pt-3' nestedScrollEnabled>
       <Text className='text-white'>Reserve a meeting</Text>
 
       <View style={{borderTopColor: 'white', borderTopWidth: 0.2}} className='mt-2 py-7'>
@@ -201,13 +194,13 @@ const About = () => {
 
         <View className='my-3'>
           <Text className='text-white mb-5'>About</Text>
-          <Text className='font-bold text-base text-white'>Robert started his career as a Unix and Linux System Engineer in 1999. Since that time he has utilized his Linux skills at companies such as Xerox, UPS, Hewlett- Packard, and Amazon.com. Additionally, he has acted as a technical consultant and independent contractor for small businesses and Fortune 500 companies.</Text>
+          <Text className='font-bold text-base text-white'>{userData?.about}</Text>
         </View>
 
         <View className='my-3'>
           <Text className='text-white mb-5'>Skills</Text>
-            {skills.map((item) => (
-              <Text className='py-2 px-3 mb-4 rounded-lg bg-custom-Gray text-lg text-black'>{item}</Text>
+            {userData?.occupations.map((item: string) => (
+              <Text className='py-2 px-3 mb-4 rounded-lg bg-custom-Gray text-lg text-white'>{item}</Text>
             ))}
         </View>
 
@@ -216,10 +209,10 @@ const About = () => {
   )
 }
 
-const Courses = (userData: UserData) =>{
-
+const Courses = ({ route }: { route: any }) =>{
+  const userData = route.params.userData;
   return(
-      <ScrollView showsVerticalScrollIndicator={false} className='bg-black pt-3'>
+      <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled className='bg-black pt-3'>
         {userData?.webinars.map((item: CourseData, index: number) => 
             <ComponentItem key={index} {...item}/>
         )}
@@ -261,7 +254,7 @@ const Articles = () =>{
     )
   }
   return(
-    <ScrollView className='py-7 bg-black' style={{borderTopColor: 'white', borderTopWidth: 0.2}}>
+    <ScrollView className='py-7 bg-black' style={{borderTopColor: 'white', borderTopWidth: 0.2}} nestedScrollEnabled>
       <Params />
       <Params />
     </ScrollView>
