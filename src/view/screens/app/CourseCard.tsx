@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { SafeAreaView, Text, View, Image, ScrollView, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import { useQuery, useMutation } from 'react-query';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -16,7 +16,8 @@ import {
   Session, 
   userLogin, 
   toggleFavorites,
-  EnrollOnCourse } from '../../../data/client/http-client';
+  EnrollOnCourse,
+  postComment } from '../../../data/client/http-client';
 import { Alert } from 'react-native';
 
 interface Item {
@@ -104,6 +105,16 @@ const DropdownFAQItem: React.FC<FAQS & DropdownProps> = ({ title, answer, isOpen
 const CourseCard = ({ route }: { route: any }) => {
   const navigation = useNavigation<NavigationProp>();
   
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+      useEffect(() => {
+        async function checkUserLogin() {
+          const userIsLoggedIn = await userLogin();
+          setIsLoggedIn(userIsLoggedIn);
+        }
+    
+        checkUserLogin();
+      }, []);
+
   const Data = route?.params.data;
   let course: any;
 
@@ -160,7 +171,7 @@ const CourseCard = ({ route }: { route: any }) => {
       if (selectedItem) {
         console.log('Selected Item:', selectedItem);
       } 
-      if(await userLogin()){
+      if(isLoggedIn){
         if (data?.auth_has_bought) {
           navigation.navigate('CourseTime', {
             data,
@@ -309,7 +320,7 @@ const CourseCard = ({ route }: { route: any }) => {
         }
       });
       const toggleLikeVisibility = async (id: number) => {
-        if (await userLogin()) {
+        if (isLoggedIn) {
           const response = await mutationFavorites.mutateAsync(id);
           if (!response) {
             console.log('error');
@@ -321,7 +332,7 @@ const CourseCard = ({ route }: { route: any }) => {
         }
       };   
       const toggleBasketVisibility = async() => {
-        if(await userLogin()){
+        if(isLoggedIn){
           setActiveBasket(!activeBasket);        // POST: set 
         } else{
           Alert.alert('Message','Please Sign in');
@@ -333,6 +344,32 @@ const CourseCard = ({ route }: { route: any }) => {
           id,
         });
       };
+
+      
+    const [comment, setComment] = useState<string>('');
+
+    const mutationComment = useMutation(postComment, {
+      onSuccess: async () => {
+        console.log('postComment')
+      }
+    });
+
+    const handleComment = async(item_id: number, item_name: string, comment: string) => {
+      try{
+        const response = await mutationComment.mutateAsync({
+          item_id,
+          item_name,
+          comment
+        });
+        if (!response) {
+          console.log('error');
+        } else {
+          setComment(comment); 
+        }
+      } catch(error){
+        console.error('Comment error:', error);
+      }
+    }
 
   return (
     <SafeAreaView className='flex-1 bg-black p-4 pt-8'>
@@ -512,7 +549,7 @@ const CourseCard = ({ route }: { route: any }) => {
           </View>
 
           {course?.comments && 
-            <View className='mt-4'>
+            <View className='mt-4 mb-44'>
               {course?.comments.map((item: Comment, index: number) => 
                 (
                 <View key={index} className='my-2'>
@@ -536,6 +573,33 @@ const CourseCard = ({ route }: { route: any }) => {
               )}
             </View>
 
+          }
+    
+          {isLoggedIn && 
+            <View className='absolute bottom-0 w-full'>
+              <TextInput 
+                placeholder="comment..." 
+                value={comment} 
+                onChangeText={setComment}
+                placeholderTextColor="white" 
+                style={{
+                  borderColor: 'white',
+                  borderWidth: 1,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: 12,
+                  width: '100%',
+                  height: 120, 
+                  textAlignVertical: 'top', 
+                }}
+                multiline={true}  
+              />
+              <TouchableOpacity 
+                onPress={() => handleComment(course?.id, course?.type, comment)} 
+                className='items-center mt-3 px-4 py-1 border border-white rounded-lg'>
+                <Text className='text-white text-base'>Оставить отзыв</Text>
+              </TouchableOpacity>
+            </View>
           }
 
         </ScrollView>

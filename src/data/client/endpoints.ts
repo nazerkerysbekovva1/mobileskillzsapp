@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   FAVORITES_TOGGLE: '/toggle',
   FOLLOW:'/follow',
   FREE: '/free',
+  COMMENTS: '/comments',
 
   USERS_GOOGLE: '/google',
   

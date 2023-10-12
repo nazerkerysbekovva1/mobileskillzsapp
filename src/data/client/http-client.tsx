@@ -575,3 +575,54 @@ export async function EnrollOnCourse (id: number) : Promise<Response> {
   }
     return response
 }
+
+
+// item_id = course id, item_name = course type (webinar, course, blog, ..)
+export async function postComment ({ item_id, item_name, comment }: { 
+    item_id: number; 
+    item_name: string;
+    comment: string;
+
+  }) : Promise<Response> {
+  const data = {
+    item_id,
+    item_name,
+    comment,
+  }
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.COMMENTS}`)
+  const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.COMMENTS}`, {
+      method: 'POST',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+      body: JSON.stringify(data)
+  })
+  if(response.ok){
+    console.log('Comment sent successfully')
+  }
+    return response
+}
+
+export async function deleteComment (id: number) : Promise<Response> {
+  const userAuthToken = await AsyncStorage.getItem('userAuthToken');
+
+  console.log(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.COMMENTS}/${id}`)
+  const response = await fetch(`${Config.apiUrl}/api/development${API_ENDPOINTS.PANEL}${API_ENDPOINTS.COMMENTS}/${id}`, {
+      method: 'DELETE',
+      headers : {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'x-api-key': Config.secret,
+          'Authorization': `Bearer ${userAuthToken}`,
+      },
+  })
+  if(response.ok){
+    console.log('Deleted comment id: ', id)
+  }
+    return response
+}
